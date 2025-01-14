@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "sentence": "Yo ___ una manzana en mi mochila.",
+        "options": ["tengo", "he"],
+        "correct": "tengo",
+        "explanation": "Use 'tengo' because it refers to possession, not action."
+    },
+    {
+        "id": 2,
+        "sentence": "No sé si ___ terminado la tarea.",
+        "options": ["he", "tengo"],
+        "correct": "he",
+        "explanation": "Use 'he' because it refers to the auxiliary verb for action."
+    }
+]
