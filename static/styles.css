@@ -1,0 +1,263 @@
+/* General Styles */
+/* Color classes for each category */
+.identity {
+  background-color: white;
+  color: #007bff; /* Blue for Identity */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.characteristics {
+  background-color: white;
+  color: #28a745; /* Green for Characteristics */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.origin {
+  background-color: white;
+  color: #ffc107; /* Yellow for Origin/Nationality */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.time-date {
+  background-color: white;
+  color: #17a2b8; /* Cyan for Time/Date */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.material {
+  background-color: white;
+  color: #6c757d; /* Gray for Material/Ownership */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.location {
+  background-color: white;
+  color: #613141; /* Red for Location */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.emotions {
+  background-color: white;
+  color: #fd7e14; /* Orange for Emotions/Conditions */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.ongoing {
+  background-color: white;
+  color: #6610f2; /* Purple for Ongoing Actions */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.results {
+  background-color: white;
+  color: #e83e8c; /* Pink for Results of Actions */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.unusual {
+  background-color: white;
+  color: #a7a6a8; /* Indigo for Unusual Characteristics */
+  padding: 5px;
+  border-radius: 3px;
+}
+
+  /* end of color classes */
+  
+body {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    background-color: #f9f9f9;
+    color: #2b2828;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Container */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  :root {
+  --bs-primary: #ff5722; /* Change primary color to orange */
+  --bs-secondary: #795548; /* Change secondary color to brown */
+  --bs-body-font-family: 'Roboto', sans-serif; /* Change font family */
+  --bs-body-font-size: 1.2rem; /* Increase base font size */
+  --bs-body-line-height: 1.8; /* Increase line height */
+}
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #c73a3a;
+  }
+  h1 {
+    font-size: 2.5rem;
+    color: #272927;
+  }
+  h2 {
+    font-size: 2rem;
+  }
+  h3 {
+    font-size: 1.75rem;
+    color: #454447;
+  }
+  
+  /* Paragraphs */
+  p {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  /* Lists */
+  ul {
+    list-style-type: disc;
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+  }
+  ul li {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  /* Links */
+  a {
+    text-decoration: none;
+    color: #007bff;
+  }
+  a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+  }
+  .reasoning-button {
+    color: #fff; /* White text */
+    background-color: #404041; /* Blue background */
+    border-color: #404041; /* Matching border color */
+}
+
+.reasoning-button:hover {
+    background-color: #5183e0; 
+    color: #fff; /* White text */
+}
+.conjugations-button {
+  color: #fff; /* White text */
+  background-color: #404041; /* Blue background */
+  border-color: #404041; /* Matching border color */
+}
+
+.conjugations-button:hover {
+  background-color: #5183e0; 
+  color: #fff; /* White text */
+}
+
+  /* Buttons 
+  button, .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }*/
+  button:hover, .btn:hover {
+    background-color: #0056b3;
+  }
+  .btn-secondary {
+    background-color: #6c757d;
+  }
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+  
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 1rem;
+  }
+  table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+  }
+  table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Forms */
+  input, textarea, select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  
+  /* Cards */
+  .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    background-color: white;
+    margin-bottom: 1rem;
+  }
+  .card h3 {
+    margin-top: 0;
+  }
+  
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #007bff;
+    color: white;
+    margin-top: 1rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+    }
+    h2 {
+      font-size: 1.75rem;
+    }
+    h3 {
+      font-size: 1.5rem;
+    }
+    .container {
+      padding: 10px;
+    }
+  }
+  
