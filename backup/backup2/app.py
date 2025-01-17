@@ -88,13 +88,10 @@ def exercise_page(exercise_key):
 @app.route("/practice")
 def practice_page():
     """
-    Render the practice page, determining if it's reasoning or conjugation.
+    Practice page for Ser vs. Estar. 
+    You can expand this to handle other exercises if you want.
     """
-    mode = request.args.get("mode", "conjugation")  # Default to conjugation
-    print(f"User selected mode: {mode}")  # Debugging log
-    return render_template("practice.html", mode=mode)
-
-
+    return render_template("practice.html")
 
 
 # -----------------------
@@ -396,9 +393,8 @@ def api_ser_estar():
         feedback = "Correct!" if user_answer == correct_answer else "Incorrect!"
         return jsonify({"feedback": feedback})
     
-    # Get mode from request query parameters (default to "reasoning")
-    mode = request.args.get("mode", "reasoning")
-    print(f"User selected mode: {mode}")  # Debugging log
+    # Determine whether to fetch a reasoning or conjugation sentence
+    mode = request.args.get("mode", "reasoning")  # Default to reasoning if no mode is provided
 
     if mode == "conjugation":
         new_sentence = generate_conjugation_sentence()
@@ -406,7 +402,6 @@ def api_ser_estar():
         new_sentence = generate_reason_sentence()
 
     return jsonify(new_sentence)
-
 
 
 

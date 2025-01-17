@@ -62,31 +62,26 @@
     }
   </style>
   <script>
-   async function fetchSentence() {
-    try {
-        // Read the mode parameter from the URL (default to "reasoning")
-        const mode = new URLSearchParams(window.location.search).get("mode") || "reasoning";
-        console.log("Fetching a new sentence for mode:", mode);
-
-        // Make the API request with the mode parameter
-        const response = await fetch(`/api/ser_estar?mode=${mode}`);
+    async function fetchSentence() {
+      try {
+        console.log("Fetching a new sentence...");
+        const response = await fetch("/api/ser_estar");
         const data = await response.json();
         console.log("Received data:", data);
 
-        // Update the DOM with new sentence
+        // Update the DOM
         document.getElementById("sentence").innerText = data.sentence;
         document.getElementById("correct").value = data.correct;
-        document.getElementById("correctCategory").value = data.category || "";  // Handle undefined
+        document.getElementById("correctCategory").value = data.category;
         document.getElementById("feedback").innerText = ""; // Clear feedback
 
         // Hide sub-buttons for a fresh attempt
         document.getElementById("serSubButtons").style.display = "none";
         document.getElementById("estarSubButtons").style.display = "none";
-    } catch (error) {
+      } catch (error) {
         console.error("Error fetching sentence:", error);
+      }
     }
-}
-
 
     async function checkAnswer(answer) {
       const correct = document.getElementById("correct").value;
@@ -145,20 +140,11 @@
 <body>
   <div class="text-center mt-4">
     <a href="/" class="btn btn-secondary">Home</a>
-    <a href="/exercise/ser_estar" class="btn btn-secondary">Back to Exercises</a>
+    <a href="/exercise/ser_estar" class="btn btn-secondary">Back to Definitions</a>
   </div>
 
   <div class="container text-center">
-    <h1 class="mb-4">
-      Practice: Ser vs. Estar 
-      <span id="practice-mode"></span>
-    </h1>
-
-    <script>
-      // Update the title based on the selected mode
-      document.getElementById("practice-mode").innerText = "({{ mode }})";
-    </script>
-  </div>
+    <h1 class="mb-4">Practice: Ser vs. Estar</h1>
 
     <div id="sentence" class="sentence">Loading...</div>
     <input type="hidden" id="correct" />
