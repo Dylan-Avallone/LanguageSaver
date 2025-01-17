@@ -151,14 +151,12 @@
       <h3>Choose Your Focus</h3>
       <div class="d-flex justify-content-center gap-3 mt-3">
         <!-- Top-Level Buttons -->
-        <!-- Top-Level Buttons -->
-<button class="btn btn-primary" id="reasoningBtn" onclick="selectMode('reasoning')">
-  Reasoning
-</button>
-
-<button class="btn btn-secondary" id="conjugationBtn" onclick="selectMode('conjugation')">
-  Conjugations
-</button>
+        <button class="btn reasoning-button" onclick="startPractice('reasoning')">
+          Reasoning
+        </button>
+        <button class="btn conjugations-button" onclick="startPractice('conjugation')">
+          Conjugations
+        </button>
 
         <!-- The "Not Sure?" for top-level -->
         <button class="btn btn-outline-info" onclick="toggleNotSureTop(this)">
@@ -222,11 +220,6 @@
 
 
 
-
-
-
-
-
 <script>
   let selectedTenses = [];
 
@@ -258,37 +251,8 @@
 </script>
 
 
-<!--selectMode function that redirects user to practice page with mode parameter-->>
 
 
-<script>
-  function selectMode(mode) {
-      console.log("Selected mode:", mode);
-      window.location.href = "/practice?mode=" + mode;
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-      console.log("DOM fully loaded");
-
-      let reasoningBtn = document.getElementById("reasoningBtn");
-      let conjugationBtn = document.getElementById("conjugationBtn");
-
-      if (!reasoningBtn || !conjugationBtn) {
-          console.error("Buttons not found!");
-          return;
-      }
-
-      reasoningBtn.addEventListener("click", function() {
-          selectMode("reasoning");
-      });
-
-      conjugationBtn.addEventListener("click", function() {
-          selectMode("conjugation");
-      });
-
-      console.log("Event listeners added successfully");
-  });
-</script>
 
 
 
