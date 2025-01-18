@@ -117,25 +117,45 @@
 
 <!--Event lister that sends request to api/_user_exercise_choice-->
 <script>
-  async function startPractice(choice) {
-    try {
-      console.log("Starting practice with choice:", choice);
-      const response = await fetch("/api/user_exercise_choice", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ choice: choice }),
-      });
+async function startPractice() {
+    console.log("🚀 startPractice() triggered");
 
-      const data = await response.json();
-      if (data.redirect) {
-        window.location.href = data.redirect; // Redirect to practice page
-      }
-    } catch (error) {
-      console.error("Error selecting exercise:", error);
+    const conjugationBtn = document.getElementById("conjugationBtn");
+    if (!conjugationBtn) {
+        console.error("❌ ERROR: Conjugation button not found!");
+        return;
     }
-  }
+
+    const isConjugation = conjugationBtn.classList.contains("highlighted");
+    console.log("🟡 Detected mode:", isConjugation ? "conjugation" : "reasoning");
+
+    let selectedTenses = [];
+    if (isConjugation) {
+        const selectedTensesElement = document.getElementById("selectedTenses");
+        if (!selectedTensesElement) {
+            console.error("❌ ERROR: Selected tenses element not found!");
+            return;
+        }
+
+        selectedTenses = JSON.parse(selectedTensesElement.value || "[]");
+        console.log("📌 Selected Tenses:", selectedTenses);
+
+        if (selectedTenses.length === 0) {
+            alert("Please select at least one tense before starting practice.");
+            return;
+        }
+
+        // ✅ Store selected tenses in sessionStorage
+        sessionStorage.setItem("selectedTenses", JSON.stringify(selectedTenses));
+    }
+
+    // ✅ Construct the redirect URL
+    let redirectURL = `/practice?mode=${isConjugation ? "conjugation" : "reasoning"}`;
+    console.log("🔗 Redirecting to:", redirectURL);
+    window.location.href = redirectURL;
+}
+
+
 </script>
 
 
@@ -249,13 +269,6 @@
   <a href="#" class="btn btn-primary" onclick="startPractice()">Start Practice</a>
 </div>
 
-<script>
-  function startPractice() {
-    const selectedTenses = JSON.stringify(document.getElementById("selectedTenses").value);
-    sessionStorage.setItem("selectedTenses", selectedTenses);
-    window.location.href = "/practice";  // Redirect to practice page
-  }
-</script>
 
 
 <!--selectMode function that redirects user to practice page with mode parameter-->>
@@ -263,9 +276,50 @@
 
 <script>
   function selectMode(mode) {
-      console.log("Selected mode:", mode);
-      window.location.href = "/practice?mode=" + mode;
-  }
+    console.log("🔄 selectMode() triggered - Mode:", mode);
+
+    const reasoningBtn = document.getElementById("reasoningBtn");
+    const conjugationBtn = document.getElementById("conjugationBtn");
+
+    if (!reasoningBtn || !conjugationBtn) {
+        console.error("❌ ERROR: One or both mode buttons not found!");
+        return;
+    }
+
+    // Toggle active class based on selection
+    if (mode === "reasoning") {
+        reasoningBtn.classList.add("highlighted");
+        conjugationBtn.classList.remove("highlighted");
+
+        // Hide mood/tenses UI
+        document.getElementById("mood-buttons").style.display = "none";
+    } else if (mode === "conjugation") {
+        conjugationBtn.classList.add("highlighted");
+        reasoningBtn.classList.remove("highlighted");
+
+        // Show mood/tenses UI
+        document.getElementById("mood-buttons").style.display = "block";
+    }
+}
+
+function selectMood(mood) {
+    console.log("Selected mood:", mood);
+
+    // Hide all tense sections first
+    document.getElementById("indicative-tenses").style.display = "none";
+    document.getElementById("subjunctive-tenses").style.display = "none";
+    document.getElementById("imperative-tenses").style.display = "none";
+
+    // Show the selected mood’s tenses
+    if (mood === "Indicative") {
+        document.getElementById("indicative-tenses").style.display = "block";
+    } else if (mood === "Subjunctive") {
+        document.getElementById("subjunctive-tenses").style.display = "block";
+    } else if (mood === "Imperative") {
+        document.getElementById("imperative-tenses").style.display = "block";
+    }
+}
+
 
   document.addEventListener("DOMContentLoaded", function () {
       console.log("DOM fully loaded");
