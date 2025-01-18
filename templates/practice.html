@@ -61,85 +61,211 @@
       justify-content: center;
     }
   </style>
+  
   <script>
-   async function fetchSentence() {
+ async function fetchSentence() {
     try {
-        // Read the mode parameter from the URL (default to "reasoning")
-        const mode = new URLSearchParams(window.location.search).get("mode") || "reasoning";
-        console.log("Fetching a new sentence for mode:", mode);
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get("mode") || "reasoning";
+        const tenses = JSON.parse(sessionStorage.getItem("selectedTenses") || "[]");
 
-        // Make the API request with the mode parameter
-        const response = await fetch(`/api/ser_estar?mode=${mode}`);
+        console.log("📌 Fetching a new sentence for mode:", mode);
+        console.log("📌 Tenses for conjugation:", tenses);
+
+        const response = await fetch(`/api/ser_estar?mode=${mode}&tenses=${encodeURIComponent(JSON.stringify(tenses))}`);
         const data = await response.json();
-        console.log("Received data:", data);
+        console.log("✅ Received data:", data);
 
-        // Update the DOM with new sentence
-        document.getElementById("sentence").innerText = data.sentence;
-        document.getElementById("correct").value = data.correct;
-        document.getElementById("correctCategory").value = data.category || "";  // Handle undefined
-        document.getElementById("feedback").innerText = ""; // Clear feedback
+        // ✅ Ensure elements exist before updating them
+        const sentenceEl = document.getElementById("sentence");
+        const correctEl = document.getElementById("correct");
+        const correctCategoryEl = document.getElementById("correctCategory");
+        const correctTenseEl = document.getElementById("correctTense");
+        const feedbackEl = document.getElementById("feedback");
+        const categoryButtons = document.getElementById("categoryButtons");
+        const tenseButtonsContainer = document.getElementById("tenseButtonsContainer");
 
-        // Hide sub-buttons for a fresh attempt
-        document.getElementById("serSubButtons").style.display = "none";
-        document.getElementById("estarSubButtons").style.display = "none";
+        if (!sentenceEl || !correctEl || !feedbackEl) {
+            console.error("❌ ERROR: One or more required elements are missing in the DOM.");
+            return;
+        }
+
+        // ✅ Update the DOM with the new sentence
+        sentenceEl.innerText = data.sentence;
+        correctEl.value = data.correct ? data.correct.trim().toLowerCase() : ""; // Prevents undefined values
+
+        // ✅ Store correct category if in reasoning mode
+        if (mode === "reasoning" && correctCategoryEl) {
+            if (data.category) {
+                correctCategoryEl.value = data.category.trim(); // ✅ Store category properly
+            } else {
+                console.error("❌ ERROR: Missing category from AI response.");
+                correctCategoryEl.value = ""; // ✅ Prevent undefined issues
+            }
+        }
+
+        // ✅ Store correct tense if in conjugation mode
+        if (mode === "conjugation" && correctTenseEl) {
+            correctTenseEl.value = data.tense ? data.tense.trim() : ""; // ✅ Store tense properly
+        }
+
+        feedbackEl.innerText = ""; // Clear feedback
+
+        // ✅ Hide buttons when fetching a new sentence
+        if (categoryButtons) {
+            categoryButtons.style.display = "none"; // Hide category buttons on sentence fetch
+        }
+
+        if (tenseButtonsContainer) {
+            tenseButtonsContainer.style.display = "none"; // Hide tense buttons on sentence fetch
+        }
+
     } catch (error) {
-        console.error("Error fetching sentence:", error);
+        console.error("❌ Error fetching sentence:", error);
     }
 }
 
 
-    async function checkAnswer(answer) {
-      const correct = document.getElementById("correct").value;
 
-      if (answer === correct) {
-        // Show the correct sub-buttons based on Ser/Estar
-        if (answer === "ser") {
-          document.getElementById("serSubButtons").style.display = "flex";
-          document.getElementById("estarSubButtons").style.display = "none";
+
+async function checkAnswer(answer) {
+    const correct = document.getElementById("correct").value.trim().toLowerCase();
+    const mode = new URLSearchParams(window.location.search).get("mode") || "reasoning";
+    const tenseButtonsContainer = document.getElementById("tenseButtonsContainer");
+
+    console.log("🔍 Stored correct answer:", correct);
+    console.log("🔍 User clicked answer:", answer);
+
+    if (!tenseButtonsContainer) {
+        console.error("❌ ERROR: Tense buttons container is missing.");
+        return;
+    }
+
+    if (answer.toLowerCase() === correct) {  // ✅ Ensure comparison is case-insensitive
+        console.log("✅ Correct answer chosen:", answer);
+
+        if (mode === "reasoning") {
+            console.log("🔹 Reasoning Mode: Showing category buttons.");
+            
+            document.getElementById("categoryButtons").style.display = "block";
+            if (answer === "ser") {
+                document.getElementById("serSubButtons").style.display = "flex";
+                document.getElementById("estarSubButtons").style.display = "none";
+            } else {
+                document.getElementById("estarSubButtons").style.display = "flex";
+                document.getElementById("serSubButtons").style.display = "none";
+            }
+            
+            document.getElementById("feedback").innerText = "Correct! Now select the category.";
+            document.getElementById("feedback").className = "feedback correct";
+
         } else {
-          document.getElementById("estarSubButtons").style.display = "flex";
-          document.getElementById("serSubButtons").style.display = "none";
+            console.log("🔹 Conjugation Mode: Showing tense selection buttons.");
+            
+            tenseButtonsContainer.style.display = "block";
+            generateTenseButtons(JSON.parse(sessionStorage.getItem("selectedTenses") || "[]"));
+
+            document.getElementById("feedback").innerText = "Correct! Now select the tense.";
+            document.getElementById("feedback").className = "feedback correct";
         }
+    } else {
+        console.log("❌ Incorrect answer! Fetching new sentence...");
 
-        // Output Correct message
-        const feedback = document.getElementById("feedback");
-        feedback.innerText = "Correct! Now select the category.";
-        feedback.className = "feedback correct";
-      } else {
-        // Wrong answer → Show Incorrect, fetch new sentence
-        const feedback = document.getElementById("feedback");
-        feedback.innerText = "Incorrect!";
-        feedback.className = "feedback incorrect";
+        document.getElementById("categoryButtons").style.display = "none"; 
+        tenseButtonsContainer.style.display = "none"; 
 
-        // Wait 1 second, then fetch a new sentence
+        document.getElementById("feedback").innerText = "Incorrect!";
+        document.getElementById("feedback").className = "feedback incorrect";
+
         setTimeout(() => {
-          fetchSentence();
+            fetchSentence();
         }, 1000);
-      }
+    }
+}
+
+
+
+
+
+
+function checkCategory(category) {
+    const correctCategory = document.getElementById("correctCategory").value.trim(); // ✅ Ensure no spaces
+
+    console.log("🔍 User selected category:", category);
+    console.log("📌 Correct category from AI:", correctCategory);
+
+    if (category === correctCategory) {
+        console.log("🎉 Correct category selected!");
+
+        document.getElementById("feedback").innerText = "✅ Correct!";
+        document.getElementById("feedback").className = "feedback correct";
+
+        setTimeout(fetchSentence, 1000);
+    } else {
+        console.log("❌ Incorrect category! Try again.");
+
+        document.getElementById("feedback").innerText = "❌ Incorrect! Try again.";
+        document.getElementById("feedback").className = "feedback incorrect";
+    }
+}
+
+
+
+
+
+
+function checkTense(selectedTense) {
+    const correctTenseEl = document.getElementById("correctTense");
+    if (!correctTenseEl) {
+        console.error("❌ ERROR: `correctTense` hidden input is missing.");
+        return;
     }
 
-    function checkCategory(category) {
-      const correctCategory = document.getElementById("correctCategory").value;
+    const correctTense = correctTenseEl.value.trim(); // Ensure it's clean for comparison
+    console.log("✅ User selected tense:", selectedTense);
+    console.log("📌 Correct tense from AI:", correctTense);
 
-      if (category === correctCategory) {
-        // Correct category → Output success and fetch new sentence
-        const feedback = document.getElementById("feedback");
-        feedback.innerText = "Correct!";
-        feedback.className = "feedback correct";
+    if (selectedTense.toLowerCase() === correctTense.toLowerCase()) {
+        console.log("🎉 Correct tense selected!");
 
-        // Fetch a new sentence after 1 second
-        setTimeout(() => {
-          fetchSentence();
-        }, 1000);
-      } else {
-        // Wrong category → Show incorrect message
-        const feedback = document.getElementById("feedback");
-        feedback.innerText = "Incorrect category! Try again.";
-        feedback.className = "feedback incorrect";
-      }
+        document.getElementById("feedback").innerText = "✅ Correct!";
+        document.getElementById("feedback").className = "feedback correct";
+
+        setTimeout(fetchSentence, 1000);
+    } else {
+        console.log("❌ Incorrect tense! Try again.");
+
+        document.getElementById("feedback").innerText = "❌ Incorrect! Try again.";
+        document.getElementById("feedback").className = "feedback incorrect";
+    }
+}
+function generateTenseButtons(tenses) {
+    const tenseButtonsContainer = document.getElementById("tenseButtons");
+    if (!tenseButtonsContainer) {
+        console.error("❌ ERROR: Tense buttons container is missing.");
+        return;
     }
 
-    window.onload = fetchSentence;
+    // Clear any existing buttons before generating new ones
+    tenseButtonsContainer.innerHTML = "";
+
+    if (!tenses || tenses.length === 0) {
+        tenseButtonsContainer.innerHTML = "<p>No tenses selected.</p>";
+        return;
+    }
+
+    tenses.forEach(tense => {
+        const button = document.createElement("button");
+        button.classList.add("btn", "btn-outline-primary", "m-2");
+        button.innerText = tense;
+        button.onclick = () => checkTense(tense);
+        tenseButtonsContainer.appendChild(button);
+    });
+
+    console.log("✅ Generated tense buttons:", tenses);
+}
+
+
   </script>
 </head>
 <body>
@@ -150,43 +276,105 @@
 
   <div class="container text-center">
     <h1 class="mb-4">
-      Practice: Ser vs. Estar 
-      <span id="practice-mode"></span>
+      Practice: Ser vs. Estar (<span id="modeDisplay"></span>)
     </h1>
+    
+<script>
+  document.getElementById("practice-mode").innerText = "({{ mode }})";
+</script>
 
-    <script>
-      // Update the title based on the selected mode
-      document.getElementById("practice-mode").innerText = "({{ mode }})";
-    </script>
   </div>
 
     <div id="sentence" class="sentence">Loading...</div>
     <input type="hidden" id="correct" />
-    <input type="hidden" id="correctCategory" />
+<input type="hidden" id="correctCategory" />
+<input type="hidden" id="correctTense" /> 
 
-    <div class="buttons">
+    <!-- Ser/Estar Buttons (Used in BOTH Reasoning & Conjugation) -->
+<div id="serEstarButtons">
+  <h3>Select Ser or Estar:</h3>
+  <div class="buttons">
       <button class="btn btn-primary btn-lg" onclick="checkAnswer('ser')">Ser</button>
       <button class="btn btn-secondary btn-lg" onclick="checkAnswer('estar')">Estar</button>
-    </div>
+  </div>
+</div>
 
-    <!-- Sub-buttons for SER (Hidden by default) -->
-    <div id="serSubButtons" class="button-group mt-3" style="display: none;">
+<!-- Sub-buttons for SER & ESTAR (Only for Reasoning Mode) -->
+<div id="categoryButtons" style="display: none;">
+  <h3>Select the Category:</h3>
+  <div id="serSubButtons" class="button-group mt-3" style="display: none;">
       <button class="btn btn-outline-primary" onclick="checkCategory('Identity')">Identity</button>
       <button class="btn btn-outline-success" onclick="checkCategory('Characteristics')">Characteristics</button>
       <button class="btn btn-outline-warning" onclick="checkCategory('Origin/Nationality')">Origin/Nationality</button>
       <button class="btn btn-outline-info" onclick="checkCategory('Time/Date')">Time/Date</button>
       <button class="btn btn-outline-secondary" onclick="checkCategory('Material/Ownership')">Material/Ownership</button>
-    </div>
+  </div>
 
-    <!-- Sub-buttons for ESTAR (Hidden by default) -->
-    <div id="estarSubButtons" class="button-group mt-3" style="display: none;">
+  <div id="estarSubButtons" class="button-group mt-3" style="display: none;">
       <button class="btn btn-outline-primary" onclick="checkCategory('Location')">Location</button>
       <button class="btn btn-outline-success" onclick="checkCategory('Emotions/Conditions')">Emotions/Conditions</button>
       <button class="btn btn-outline-warning" onclick="checkCategory('Ongoing Actions')">Ongoing Actions</button>
       <button class="btn btn-outline-info" onclick="checkCategory('Results of Actions')">Results of Actions</button>
-    </div>
+  </div>
+</div>
+
+<!-- Tense Selection (Only for Conjugation Mode) -->
+<div id="tenseButtonsContainer" style="display: none;">
+  <h3>Select the Correct Tense:</h3>
+  <div id="tenseButtons" class="button-group mt-3"></div>
+</div>
 
     <div id="feedback" class="feedback"></div>
   </div>
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get("mode") || "reasoning"; // ✅ Declare mode here before using it
+
+    console.log("📌 Practice Mode:", mode); // ✅ No more ReferenceError!
+
+    let selectedTenses = [];
+    if (mode === "conjugation") {
+        selectedTenses = JSON.parse(sessionStorage.getItem("selectedTenses") || "[]");
+        console.log("📌 Selected Tenses in Practice Page:", selectedTenses);
+    }
+
+    // ✅ Ensure mode display exists before modifying
+    const modeDisplay = document.getElementById("modeDisplay");
+    if (modeDisplay) {
+        modeDisplay.innerText = mode;
+    } else {
+        console.error("❌ ERROR: modeDisplay element is missing.");
+    }
+
+    // ✅ Ensure tense display exists before modifying
+    const tenseDisplay = document.getElementById("tenseDisplay");
+    if (tenseDisplay) {
+        if (selectedTenses.length > 0) {
+            tenseDisplay.innerText = "Selected Tenses: " + selectedTenses.join(", ");
+        } else {
+            tenseDisplay.innerText = "No tenses selected.";
+        }
+    } else {
+        console.error("❌ ERROR: tenseDisplay element is missing.");
+    }
+
+    // ✅ Generate Tense Buttons (Only for Conjugation Mode)
+    if (mode === "conjugation") {
+        generateTenseButtons(selectedTenses);
+    }
+
+    // ✅ Fetch a new sentence after ensuring everything is set
+    fetchSentence();
+});
+
+
+</script>
+
+<div class="container">
+    <h2>Practice Mode: <span id="modeDisplay">{{ mode }}</span></h2>
+    <p id="tenseDisplay"></p>
+</div>
+
 </body>
 </html>

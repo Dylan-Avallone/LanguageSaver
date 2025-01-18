@@ -90,18 +90,24 @@ def practice_page():
     """
     Render the practice page, determining if it's reasoning or conjugation.
     """
-    mode = request.args.get("mode", "conjugation")  # Default to conjugation
-    print(f"User selected mode: {mode}")  # Debugging log
-    return render_template("practice.html", mode=mode)
+    mode = request.args.get("mode", "reasoning")  # Default to reasoning if missing
+    tenses = request.args.get("tenses", "[]")  # Retrieve tenses as a string
 
+    try:
+        tenses = json.loads(tenses)  # Convert JSON string to Python list
+    except json.JSONDecodeError:
+        tenses = []  # Default to empty if there's an error
+
+    print(f"📌 Practice Mode: {mode}")
+    print(f"📌 Received Tenses: {tenses}")
+
+    return render_template("practice.html", mode=mode, tenses=tenses)
 
 
 
 # -----------------------
 # OpenAI logic
 # -----------------------
-
-
 
 # Initialize counters for `ser` and `estar`
 counts = {"ser": 0, "estar": 0}
@@ -149,55 +155,58 @@ def get_weighted_choice():
     return random.choices(["ser", "estar"], weights=[ser_prob, estar_prob], k=1)[0]
 
 # sentence function for conjugation practice
-def generate_conjugation_sentence():
+def generate_conjugation_sentence(tenses):
     """
-    Calls OpenAI to generate a Spanish sentence requiring 'ser' or 'estar' in a specific indicative tense.
-    Ensures variety in conjugation forms.
+    Calls OpenAI to generate a Spanish sentence requiring 'ser' or 'estar' 
+    in a user-selected indicative tense. Ensures variety in conjugation forms.
     """
     max_retries = 10
     attempts = 0
 
-    indicative_tenses = [
-        "present", "imperfect", "future", "conditional",
-        "present perfect", "past perfect", "future perfect"
-    ]
+    # ✅ If no tenses are provided, fallback to all indicative tenses
+    if not tenses:
+        tenses = ["present", "imperfect", "future", "conditional",
+                  "present perfect", "past perfect", "future perfect"]
+
+    # ✅ Convert tenses to lowercase & format correctly
+    tenses = [t.lower().replace(" ", "_") for t in tenses]
+
+    # ✅ Define conjugations
+    conjugations = {
+        "ser": {
+            "present": ["soy", "eres", "es", "somos", "sois", "son"],
+            "imperfect": ["era", "eras", "era", "éramos", "erais", "eran"],
+            "future": ["seré", "serás", "será", "seremos", "seréis", "serán"],
+            "conditional": ["sería", "serías", "sería", "seríamos", "seríais", "serían"],
+            "present_perfect": ["he sido", "has sido", "ha sido", "hemos sido", "habéis sido", "han sido"],
+            "past_perfect": ["había sido", "habías sido", "había sido", "habíamos sido", "habíais sido", "habían sido"],
+            "future_perfect": ["habré sido", "habrás sido", "habrá sido", "habremos sido", "habréis sido", "habrán sido"]
+        },
+        "estar": {
+            "present": ["estoy", "estás", "está", "estamos", "estáis", "están"],
+            "imperfect": ["estaba", "estabas", "estaba", "estábamos", "estabais", "estaban"],
+            "future": ["estaré", "estarás", "estará", "estaremos", "estaréis", "estarán"],
+            "conditional": ["estaría", "estarías", "estaría", "estaríamos", "estaríais", "estarían"],
+            "present_perfect": ["he estado", "has estado", "ha estado", "hemos estado", "habéis estado", "han estado"],
+            "past_perfect": ["había estado", "habías estado", "había estado", "habíamos estado", "habíais estado", "habían estado"],
+            "future_perfect": ["habré estado", "habrás estado", "habrá estado", "habremos estado", "habréis estado", "habrán estado"]
+        }
+    }
 
     while attempts < max_retries:
         try:
-            print("Calling OpenAI ChatCompletion for Conjugation Sentence...")
+            print("📌 Calling OpenAI ChatCompletion for Conjugation Sentence...")
 
-            # Decide which verb to use (ser or estar)
+            # ✅ Pick "ser" or "estar"
             correct_answer = get_weighted_choice()
 
-            # Select a tense randomly from indicative tenses
-            chosen_tense = random.choice(indicative_tenses)
+            # ✅ Select a tense randomly from the user-selected tenses
+            chosen_tense = random.choice(tenses)
 
-            # Map tense to correct conjugation list
-            conjugations = {
-                "ser": {
-                    "present": ["soy", "eres", "es", "somos", "sois", "son"],
-                    "imperfect": ["era", "eras", "era", "éramos", "erais", "eran"],
-                    "future": ["seré", "serás", "será", "seremos", "seréis", "serán"],
-                    "conditional": ["sería", "serías", "sería", "seríamos", "seríais", "serían"],
-                    "present perfect": ["he sido", "has sido", "ha sido", "hemos sido", "habéis sido", "han sido"],
-                    "past perfect": ["había sido", "habías sido", "había sido", "habíamos sido", "habíais sido", "habían sido"],
-                    "future perfect": ["habré sido", "habrás sido", "habrá sido", "habremos sido", "habréis sido", "habrán sido"]
-                },
-                "estar": {
-                    "present": ["estoy", "estás", "está", "estamos", "estáis", "están"],
-                    "imperfect": ["estaba", "estabas", "estaba", "estábamos", "estabais", "estaban"],
-                    "future": ["estaré", "estarás", "estará", "estaremos", "estaréis", "estarán"],
-                    "conditional": ["estaría", "estarías", "estaría", "estaríamos", "estaríais", "estarían"],
-                    "present perfect": ["he estado", "has estado", "ha estado", "hemos estado", "habéis estado", "han estado"],
-                    "past perfect": ["había estado", "habías estado", "había estado", "habíamos estado", "habíais estado", "habían estado"],
-                    "future perfect": ["habré estado", "habrás estado", "habrá estado", "habremos estado", "habréis estado", "habrán estado"]
-                }
-            }
-
-            # Pick a conjugated form randomly from the chosen tense list
+            # ✅ Pick a conjugated form randomly from the chosen tense list
             chosen_conjugation = random.choice(conjugations[correct_answer][chosen_tense])
 
-            # Call OpenAI API
+            # ✅ Call OpenAI API (with user-selected tenses enforced)
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -207,14 +216,16 @@ def generate_conjugation_sentence():
                         "content": (
                             f"Generate a **unique** Spanish sentence where the blank (___) is filled with the correct conjugated form of '{correct_answer}'.\n\n"
                             "**RULES:**\n"
-                            "- The verb must be used in the '{chosen_tense}' indicative tense.\n"
-                            f"- Use one of these conjugations: {', '.join(conjugations[correct_answer][chosen_tense])}.\n"
-                            "- The sentence should sound natural and appropriate for the chosen tense.\n\n"
+                            f"- The verb **must** be in one of these user-selected tenses: {', '.join(tenses)}.\n"
+                            "- The sentence should sound natural and appropriate for the chosen tense.\n"
+                            "- Use the correct subject-verb agreement.\n"
+                            f"- The correct conjugation for the blank should be: {chosen_conjugation}.\n"
+                            "- Avoid repetition of the same subject or sentence patterns.\n\n"
                             "**OUTPUT JSON FORMAT:**\n"
                             "{\n"
                             f"  \"sentence\": \"Example sentence with a blank ___\",\n"
                             f"  \"correct\": \"{correct_answer}\",\n"
-                            f"  \"tense\": \"{chosen_tense}\",\n"
+                            f"  \"tense\": \"{chosen_tense.replace('_', ' ')}\",\n"
                             f"  \"verb_form\": \"{chosen_conjugation}\"\n"
                             "}\n\n"
                             "**Return only the JSON.**"
@@ -225,48 +236,40 @@ def generate_conjugation_sentence():
                 temperature=1.1,  # Adds diversity while maintaining accuracy
             )
 
-            print("OpenAI raw response:", response)
+            print("📌 OpenAI raw response:", response)
 
-            # Extract AI response content
+            # ✅ Extract AI response content
             response_content = response["choices"][0]["message"]["content"].strip()
-            print("AI raw text content:\n", response_content)
+            print("📌 AI raw text content:\n", response_content)
 
-            # ✅ Convert single quotes to double quotes for valid JSON parsing
-            response_content = response_content.replace("'", "\"")
-            
-            # ✅ Parse the corrected JSON
+            # ✅ Convert to JSON format
+            response_content = response_content.replace("'", "\"")  
             data = json.loads(response_content)
-            print("Parsed result as dict:", data)
+            print("📌 Parsed result:", data)
 
-            # Ensure proper tense selection
-            if data["tense"] not in indicative_tenses:
-                raise ValueError("Incorrect tense detected. Retrying...")
+            # ✅ Validate if AI used the correct tense
+            if data["tense"].lower().replace(" ", "_") not in tenses:
+                print(f"❌ AI used an invalid tense: {data['tense']}. Retrying...")
+                attempts += 1
+                continue  
 
-            # Store sentence and update count tracking
+            # ✅ Update tracking
             generated_sentences.add(data["sentence"])
             counts[data["correct"]] += 1
 
             return data
 
         except json.JSONDecodeError as e:
-            print(f"JSON decode error: {e}")
-            print("Attempting to fix formatting.")
-            
-            # Try to fix formatting and parse again
-            try:
-                response_content = response_content.replace("'", "\"")  # Convert all single quotes to double quotes
-                data = json.loads(response_content)
-                return data  # If successful, return corrected JSON
-            except Exception as e:
-                print(f"Fix attempt failed: {e}")
-
+            print(f"❌ JSON decode error: {e}. Retrying...")
             attempts += 1
         except Exception as e:
-            print(f"Error generating sentence: {e}")
+            print(f"❌ Error generating sentence: {e}. Retrying...")
             attempts += 1
 
-    print("Max retries reached. Returning fallback sentence.")
+    print("⚠ Max retries reached. Returning fallback sentence.")
     return {"sentence": "Yo ___ feliz.", "correct": "estar", "tense": "present", "verb_form": "estoy"}
+
+
 
 
 
@@ -274,23 +277,23 @@ def generate_conjugation_sentence():
 def generate_reason_sentence():
     """
     Calls OpenAI to generate a Spanish sentence requiring 'ser' or 'estar',
-    ensuring variety in conjugations.
+    ensuring variety in conjugations and categories while avoiding duplicates.
     """
     max_retries = 10
     attempts = 0
 
     while attempts < max_retries:
         try:
-            print("Calling OpenAI ChatCompletion...")
+            print("📌 Calling OpenAI ChatCompletion...")
 
-            # Decide which verb to use
+            # ✅ Pick "ser" or "estar"
             correct_answer = get_weighted_choice()
             chosen_category = (
-                random.choice(ser_categories) if correct_answer == "ser" 
+                random.choice(ser_categories) if correct_answer == "ser"
                 else random.choice(estar_categories)
             )
 
-            # **NEW**: Enforce variety in conjugation forms
+            # ✅ Enforce variety in conjugation forms
             ser_conjugations = ["soy", "eres", "es", "somos", "son"]
             estar_conjugations = ["estoy", "estás", "está", "estamos", "están"]
             chosen_conjugation = (
@@ -298,7 +301,7 @@ def generate_reason_sentence():
                 else random.choice(estar_conjugations)
             )
 
-            # Call OpenAI API
+            # ✅ Call OpenAI API
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -331,56 +334,51 @@ def generate_reason_sentence():
                 temperature=1.1,  # Adds diversity while maintaining accuracy
             )
 
-            print("OpenAI raw response:", response)
+            print("📌 OpenAI raw response:", response)
 
-            # Extract AI response content
+            # ✅ Extract AI response content
             response_content = response["choices"][0]["message"]["content"].strip()
-            print("AI raw text content:\n", response_content)
+            print("📌 AI raw text content:\n", response_content)
 
-            # ✅ Convert single quotes to double quotes for valid JSON parsing
+            # ✅ Convert to JSON format
             response_content = response_content.replace("'", "\"")
-            
-            # ✅ Parse the corrected JSON
             data = json.loads(response_content)
-            print("Parsed result as dict:", data)
+            print("📌 Parsed result:", data)
 
-            # Ensure proper category selection
+            # ✅ Check if the sentence is a duplicate
+            if data["sentence"] in generated_sentences:
+                print("⚠ Duplicate sentence detected! Retrying...")
+                attempts += 1
+                continue  # ✅ Forces AI to generate a new sentence
+
+            # ✅ Ensure correct category selection
             if data["correct"] == "ser" and data.get("category") not in ser_categories:
                 raise ValueError("Ser response missing a valid category.")
             if data["correct"] == "estar" and data.get("category") not in estar_categories:
                 raise ValueError("Estar response missing a valid category.")
 
-            # **Check if the AI is overusing "es"** and force diversity
+            # ✅ Ensure variety (AI overuse of "es")
             if data["correct"] == "ser" and data.get("verb_form") == "es":
                 print("⚠ AI overused 'es'. Retrying...")
                 attempts += 1
                 continue
 
-            # Store sentence and update count tracking
+            # ✅ Store sentence and update count tracking
             generated_sentences.add(data["sentence"])
             counts[data["correct"]] += 1
 
             return data
 
         except json.JSONDecodeError as e:
-            print(f"JSON decode error: {e}")
-            print("Attempting to fix formatting.")
-            
-            # Try to fix formatting and parse again
-            try:
-                response_content = response_content.replace("'", "\"")  # Convert all single quotes to double quotes
-                data = json.loads(response_content)
-                return data  # If successful, return corrected JSON
-            except Exception as e:
-                print(f"Fix attempt failed: {e}")
-
+            print(f"❌ JSON decode error: {e}. Retrying...")
             attempts += 1
         except Exception as e:
-            print(f"Error generating sentence: {e}")
+            print(f"❌ Error generating sentence: {e}. Retrying...")
             attempts += 1
 
-    print("Max retries reached. Returning fallback sentence.")
+    print("⚠ Max retries reached. Returning fallback sentence.")
     return {"sentence": "El libro ___ en la mesa.", "correct": "estar", "category": "Location"}
+
 
 
 
@@ -395,20 +393,27 @@ def api_ser_estar():
         correct_answer = request.json.get("correct")
         feedback = "Correct!" if user_answer == correct_answer else "Incorrect!"
         return jsonify({"feedback": feedback})
-    
-    # Get mode from request query parameters (default to "reasoning")
-    mode = request.args.get("mode", "reasoning")
-    print(f"User selected mode: {mode}")  # Debugging log
 
+    # Extract mode from query params (defaulting to reasoning if missing)
+    mode = request.args.get("mode", "reasoning")  
+
+    # ✅ Fix: Handle `tenses` properly
     if mode == "conjugation":
-        new_sentence = generate_conjugation_sentence()
+        tenses_raw = request.args.get("tenses")  # Extract tenses as a string
+        print(f"📌 Raw tenses from request: {tenses_raw}")
+
+        try:
+            tenses = json.loads(tenses_raw) if tenses_raw else []
+        except json.JSONDecodeError as e:
+            print(f"❌ JSON Decode Error: {e}")
+            tenses = []  # Fallback to empty list
+
+        print(f"📌 Parsed tenses: {tenses}")
+        new_sentence = generate_conjugation_sentence(tenses)  # ✅ Correctly pass tenses
     else:
         new_sentence = generate_reason_sentence()
 
     return jsonify(new_sentence)
-
-
-
 
 
 
