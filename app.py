@@ -154,59 +154,87 @@ def get_weighted_choice():
     print(f"Adjusted probabilities → Ser: {ser_prob:.2f}%, Estar: {estar_prob:.2f}%")
     return random.choices(["ser", "estar"], weights=[ser_prob, estar_prob], k=1)[0]
 
-# sentence function for conjugation practice
 def generate_conjugation_sentence(tenses):
     """
     Calls OpenAI to generate a Spanish sentence requiring 'ser' or 'estar' 
-    in a user-selected indicative tense. Ensures variety in conjugation forms.
+    in a user-selected tense. Ensures variety in conjugation forms.
     """
     max_retries = 10
     attempts = 0
+    data = {}  # ✅ Initialize data to prevent variable access errors
 
-    # ✅ If no tenses are provided, fallback to all indicative tenses
+      # ✅ If no tenses are provided, fallback to all tenses
     if not tenses:
-        tenses = ["present", "imperfect", "future", "conditional",
-                  "present perfect", "past perfect", "future perfect"]
+        tenses = [
+            "present", "past_imperfect", "future", "conditional",
+            "present_perfect", "past_perfect", "future_perfect",
+            "present_subjunctive", "past_imperfect_subjunctive", "present_perfect_subjunctive", "past_perfect_subjunctive",
+            "affirmative_imperative", "negative_imperative"
+        ]
 
-    # ✅ Convert tenses to lowercase & format correctly
+    # ✅ Normalize tenses (ensure consistency with conjugation dictionary)
     tenses = [t.lower().replace(" ", "_") for t in tenses]
 
-    # ✅ Define conjugations
+    # ✅ Conjugations dictionary (ensures AI correctly conjugates)
     conjugations = {
         "ser": {
+            # Indicative
             "present": ["soy", "eres", "es", "somos", "sois", "son"],
-            "imperfect": ["era", "eras", "era", "éramos", "erais", "eran"],
+            "past_imperfect": ["era", "eras", "era", "éramos", "erais", "eran"],
             "future": ["seré", "serás", "será", "seremos", "seréis", "serán"],
             "conditional": ["sería", "serías", "sería", "seríamos", "seríais", "serían"],
             "present_perfect": ["he sido", "has sido", "ha sido", "hemos sido", "habéis sido", "han sido"],
             "past_perfect": ["había sido", "habías sido", "había sido", "habíamos sido", "habíais sido", "habían sido"],
-            "future_perfect": ["habré sido", "habrás sido", "habrá sido", "habremos sido", "habréis sido", "habrán sido"]
+            "future_perfect": ["habré sido", "habrás sido", "habrá sido", "habremos sido", "habréis sido", "habrán sido"],
+            
+            # Subjunctive
+            "present_subjunctive": ["sea", "seas", "sea", "seamos", "seáis", "sean"],
+            "past_imperfect_subjunctive": ["fuera", "fueras", "fuera", "fuéramos", "fuerais", "fueran"],
+            "present_perfect_subjunctive": ["haya sido", "hayas sido", "haya sido", "hayamos sido", "hayáis sido", "hayan sido"],
+            "past_perfect_subjunctive": ["hubiera sido", "hubieras sido", "hubiera sido", "hubiéramos sido", "hubierais sido", "hubieran sido"],
+            
+            # Imperative
+            "affirmative_imperative": ["sé", "sea", "seamos", "sed", "sean"],
+            "negative_imperative": ["no seas", "no sea", "no seamos", "no seáis", "no sean"]
         },
         "estar": {
+            # Indicative
             "present": ["estoy", "estás", "está", "estamos", "estáis", "están"],
-            "imperfect": ["estaba", "estabas", "estaba", "estábamos", "estabais", "estaban"],
+            "past_imperfect": ["estaba", "estabas", "estaba", "estábamos", "estabais", "estaban"],
             "future": ["estaré", "estarás", "estará", "estaremos", "estaréis", "estarán"],
             "conditional": ["estaría", "estarías", "estaría", "estaríamos", "estaríais", "estarían"],
             "present_perfect": ["he estado", "has estado", "ha estado", "hemos estado", "habéis estado", "han estado"],
             "past_perfect": ["había estado", "habías estado", "había estado", "habíamos estado", "habíais estado", "habían estado"],
-            "future_perfect": ["habré estado", "habrás estado", "habrá estado", "habremos estado", "habréis estado", "habrán estado"]
+            "future_perfect": ["habré estado", "habrás estado", "habrá estado", "habremos estado", "habréis estado", "habrán estado"],
+            
+            # Subjunctive
+            "present_subjunctive": ["esté", "estés", "esté", "estemos", "estéis", "estén"],
+            "past_imperfect_subjunctive": ["estuviera", "estuvieras", "estuviera", "estuviéramos", "estuvierais", "estuvieran"],
+            "present_perfect_subjunctive": ["haya estado", "hayas estado", "haya estado", "hayamos estado", "hayáis estado", "hayan estado"],
+            "past_perfect_subjunctive": ["hubiera estado", "hubieras estado", "hubiera estado", "hubiéramos estado", "hubierais estado", "hubieran estado"],
+            
+            # Imperative
+            "affirmative_imperative": ["está", "esté", "estemos", "estad", "estén"],
+            "negative_imperative": ["no estés", "no esté", "no estemos", "no estéis", "no estén"]
         }
     }
+
 
     while attempts < max_retries:
         try:
             print("📌 Calling OpenAI ChatCompletion for Conjugation Sentence...")
 
-            # ✅ Pick "ser" or "estar"
             correct_answer = get_weighted_choice()
-
-            # ✅ Select a tense randomly from the user-selected tenses
             chosen_tense = random.choice(tenses)
+            
+            # ✅ Ensure AI selects a valid conjugation
+            if chosen_tense not in conjugations[correct_answer]:
+                print(f"⚠ Warning: {chosen_tense} not found in conjugations! Defaulting to present.")
+                chosen_tense = "present"
 
-            # ✅ Pick a conjugated form randomly from the chosen tense list
             chosen_conjugation = random.choice(conjugations[correct_answer][chosen_tense])
 
-            # ✅ Call OpenAI API (with user-selected tenses enforced)
+            # ✅ Call OpenAI API
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -217,15 +245,13 @@ def generate_conjugation_sentence(tenses):
                             f"Generate a **unique** Spanish sentence where the blank (___) is filled with the correct conjugated form of '{correct_answer}'.\n\n"
                             "**RULES:**\n"
                             f"- The verb **must** be in one of these user-selected tenses: {', '.join(tenses)}.\n"
-                            "- The sentence should sound natural and appropriate for the chosen tense.\n"
-                            "- Use the correct subject-verb agreement.\n"
                             f"- The correct conjugation for the blank should be: {chosen_conjugation}.\n"
-                            "- Avoid repetition of the same subject or sentence patterns.\n\n"
+                            "- Ensure proper subject-verb agreement.\n\n"
                             "**OUTPUT JSON FORMAT:**\n"
                             "{\n"
                             f"  \"sentence\": \"Example sentence with a blank ___\",\n"
                             f"  \"correct\": \"{correct_answer}\",\n"
-                            f"  \"tense\": \"{chosen_tense.replace('_', ' ')}\",\n"
+                            f"  \"tense\": \"{chosen_tense}\",\n"
                             f"  \"verb_form\": \"{chosen_conjugation}\"\n"
                             "}\n\n"
                             "**Return only the JSON.**"
@@ -233,27 +259,18 @@ def generate_conjugation_sentence(tenses):
                     },
                 ],
                 max_tokens=50,
-                temperature=1.1,  # Adds diversity while maintaining accuracy
+                temperature=1.1,
             )
 
-            print("📌 OpenAI raw response:", response)
-
-            # ✅ Extract AI response content
             response_content = response["choices"][0]["message"]["content"].strip()
-            print("📌 AI raw text content:\n", response_content)
+            data = json.loads(response_content.replace("'", "\""))
 
-            # ✅ Convert to JSON format
-            response_content = response_content.replace("'", "\"")  
-            data = json.loads(response_content)
-            print("📌 Parsed result:", data)
-
-            # ✅ Validate if AI used the correct tense
-            if data["tense"].lower().replace(" ", "_") not in tenses:
+            # ✅ Validate if AI response matches selected tense
+            if data["tense"].lower() not in tenses:
                 print(f"❌ AI used an invalid tense: {data['tense']}. Retrying...")
                 attempts += 1
                 continue  
 
-            # ✅ Update tracking
             generated_sentences.add(data["sentence"])
             counts[data["correct"]] += 1
 
@@ -268,6 +285,7 @@ def generate_conjugation_sentence(tenses):
 
     print("⚠ Max retries reached. Returning fallback sentence.")
     return {"sentence": "Yo ___ feliz.", "correct": "estar", "tense": "present", "verb_form": "estoy"}
+
 
 
 

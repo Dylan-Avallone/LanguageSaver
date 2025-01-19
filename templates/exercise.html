@@ -225,7 +225,7 @@ async function startPractice() {
     <!-- Tenses for each Mood -->
    <!-- Tenses for each Mood (Updated for Indicative) -->
 <div id="indicative-tenses" class="mt-4" style="display: none;">
-  <h4 class="text-center">Select Indicative Tenses</h4>
+  <h4 class="text-center">Indicative Tenses</h4>
   <div class="d-flex justify-content-center gap-3 mt-3">
     <button class="btn btn-outline-primary" onclick="toggleTense(this, 'Present')">Present</button>
     <button class="btn btn-outline-info" onclick="toggleTense(this, 'Present Perfect')">Present Perfect</button>
@@ -344,36 +344,25 @@ function selectMood(mood) {
   });
 </script>
 
+<!-- Tenses for each Mood: Subjunctive -->
+<div id="subjunctive-tenses" class="mt-4" style="display: none;">
+  <h4 class="text-center">Subjunctive Tenses</h4>
+  <div class="d-flex justify-content-center gap-3 mt-3">
+    <button class="btn btn-outline-primary" onclick="toggleTense(this, 'Present Subjunctive')">Present Subjunctive</button>
+    <button class="btn btn-outline-info" onclick="toggleTense(this, 'Present Perfect Subjunctive')">Present Perfect Subjunctive</button>
+    <button class="btn btn-outline-secondary" onclick="toggleTense(this, 'Past Imperfect Subjunctive')">Past Imperfect Subjunctive</button>
+    <button class="btn btn-outline-danger" onclick="toggleTense(this, 'Past Perfect Subjunctive')">Past Perfect Subjunctive</button>
+  </div>
+</div>
 
-
-  <!-- Tenses for each Mood: subjunctive-->
-    <div id="subjunctive-tenses" class="mt-4" style="display: none;">
-      <h4 class="text-center">Subjunctive Tenses</h4>
-      <div class="d-flex justify-content-center gap-3 mt-3">
-        <button class="btn btn-outline-primary" 
-                onclick="handleButtonClick(this, 'Present Subjunctive', 'Tense')">
-          Present Subjunctive
-        </button>
-        <button class="btn btn-outline-secondary" 
-                onclick="handleButtonClick(this, 'Past Subjunctive', 'Tense')">
-          Past Subjunctive
-        </button>
-      </div>
-    </div>
- <!-- Tenses for each Mood: imperative-->
-    <div id="imperative-tenses" class="mt-4" style="display: none;">
-      <h4 class="text-center">Imperative Tenses</h4>
-      <div class="d-flex justify-content-center gap-3 mt-3">
-        <button class="btn btn-outline-primary" 
-                onclick="handleButtonClick(this, 'Affirmative', 'Tense')">
-          Affirmative
-        </button>
-        <button class="btn btn-outline-secondary" 
-                onclick="handleButtonClick(this, 'Negative', 'Tense')">
-          Negative
-        </button>
-      </div>
-    </div>
+<!-- Tenses for each Mood: Imperative -->
+<div id="imperative-tenses" class="mt-4" style="display: none;">
+  <h4 class="text-center">Imperative Tenses</h4>
+  <div class="d-flex justify-content-center gap-3 mt-3">
+    <button class="btn btn-outline-primary" onclick="toggleTense(this, 'Affirmative Imperative')">Affirmative Imperative</button>
+    <button class="btn btn-outline-secondary" onclick="toggleTense(this, 'Negative Imperative')">Negative Imperative</button>
+  </div>
+</div>
   </div>
 
   <!-- Explanation Modal (Shared for All "Not Sure?" Interactions) -->
