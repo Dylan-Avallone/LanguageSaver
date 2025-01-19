@@ -40,14 +40,6 @@ exercises = {
             "haber": "Haber is used as an auxiliary verb or to express existence.",
             "tener": "Tener is used to express possession, age, or obligation."
         }
-    },
-    "por_para": {
-        "title": "Por vs. Para",
-        "verbs": ["por", "para"],
-        "definitions": {
-            "por": "Por is used for reasons, durations, exchanges, and means of communication.",
-            "para": "Para is used for purposes, deadlines, and recipients."
-        }
     }
 }
 

@@ -135,18 +135,22 @@
     }
 }
 
+
+
 async function checkAnswer(answer) {
     const correct = document.getElementById("correct").value.trim().toLowerCase();
-    const correctCategory = document.getElementById("correctCategory").value.trim();
     const mode = new URLSearchParams(window.location.search).get("mode") || "reasoning";
-    const exercise = new URLSearchParams(window.location.search).get("exercise") || "ser_estar"; // ✅ Get exercise key
+    const tenseButtonsContainer = document.getElementById("tenseButtonsContainer");
+    const tenseButtons = document.getElementById("tenseButtons");
+    const selectedTenses = JSON.parse(sessionStorage.getItem("selectedTenses") || "[]");
 
     console.log("🔍 Stored correct answer:", correct);
     console.log("🔍 User clicked answer:", answer.trim().toLowerCase());
-    console.log("🛠 checkAnswer() triggered for:", answer);
+    console.log("📌 Current Mode:", mode);
+    console.log("📌 Selected Tenses:", selectedTenses);
 
-    if (!correct) {
-        console.error("❌ ERROR: Correct answer is missing!");
+    if (!tenseButtonsContainer) {
+        console.error("❌ ERROR: Tense buttons container is missing.");
         return;
     }
 
@@ -157,28 +161,26 @@ async function checkAnswer(answer) {
             console.log("🔹 Reasoning Mode: Showing category buttons.");
             
             document.getElementById("categoryButtons").style.display = "block";
-            const categoryButtonContainer = document.getElementById("categoryButtons");
-            categoryButtonContainer.innerHTML = ""; // Clear previous buttons
-
-            // ✅ Check if categories are correctly structured
-            if (categories[exercise] && categories[exercise][correct]) {
-                categories[exercise][correct].forEach(category => {
-                    const button = document.createElement("button");
-                    button.classList.add("btn", "btn-outline-primary", "m-2");
-                    button.innerText = category;
-                    button.onclick = () => checkCategory(category);
-                    categoryButtonContainer.appendChild(button);
-                });
-            } else {
-                console.error(`❌ ERROR: categories[${exercise}][${correct}] is undefined!`);
-            }
-
             document.getElementById("feedback").innerText = "✅ Correct! Now select the category.";
+            document.getElementById("feedback").className = "feedback correct";
+
+        } else if (mode === "conjugation") {
+            console.log("🔹 Conjugation Mode: Showing tense selection buttons.");
+            
+            // ✅ Ensure container is displayed
+            tenseButtonsContainer.style.display = "block";
+            tenseButtons.innerHTML = ""; // Clear existing buttons
+            
+            generateTenseButtons(selectedTenses); // ✅ Rebuild tense buttons
+
+            document.getElementById("feedback").innerText = "✅ Correct! Now select the tense.";
             document.getElementById("feedback").className = "feedback correct";
         }
     } else {
         console.log("❌ Incorrect answer! Fetching new sentence...");
+
         document.getElementById("categoryButtons").style.display = "none"; 
+        tenseButtonsContainer.style.display = "none"; 
 
         document.getElementById("feedback").innerText = "❌ Incorrect!";
         document.getElementById("feedback").className = "feedback incorrect";
@@ -188,8 +190,6 @@ async function checkAnswer(answer) {
         }, 1000);
     }
 }
-
-
 
 
 
@@ -255,7 +255,6 @@ function checkTense(selectedTense) {
 
 
 
-
 function generateTenseButtons(tenses) {
     const tenseButtonsContainer = document.getElementById("tenseButtons");
     if (!tenseButtonsContainer) {
@@ -263,13 +262,14 @@ function generateTenseButtons(tenses) {
         return;
     }
 
-    // Clear any existing buttons before generating new ones
-    tenseButtonsContainer.innerHTML = "";
+    tenseButtonsContainer.innerHTML = ""; // ✅ Clear previous buttons
 
     if (!tenses || tenses.length === 0) {
         tenseButtonsContainer.innerHTML = "<p>No tenses selected.</p>";
         return;
     }
+
+    console.log("📌 Generating Tense Buttons:", tenses);
 
     tenses.forEach(tense => {
         const button = document.createElement("button");
@@ -287,8 +287,7 @@ function generateTenseButtons(tenses) {
 </head>
 <body>
   <div class="text-center mt-4">
-    <a href="/" class="btn btn-secondary">Home</a>
-    <a href="/exercise/ser_estar" class="btn btn-secondary">Back to Exercises</a>
+    <a href="/" class="btn btn-secondary">Back to Exercise Selection</a>
   </div>
 
   <div class="container text-center">

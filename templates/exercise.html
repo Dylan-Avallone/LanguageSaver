@@ -19,6 +19,9 @@
   </head>
 
 <body>
+  <div class="text-center mt-4">
+    <a href="/" class="btn btn-secondary">Back to Exercise Selection</a>
+  </div>
 <!-- Ensure content only appears for Ser vs. Estar -->
 {% if exercise_key == "ser_estar" %}
     <h1 class="text-center">{{ exercise.title }}</h1>
@@ -73,22 +76,21 @@
       </div>
   </div>
   {% elif exercise_key == "haber_tener" %}
-    <h1 class="text-center">{{ exercise.title }}</h1>
+  <h1 class="text-center">{{ exercise.title }}</h1>
 
-    <div class="mt-4">
-        <h3 style="font-size: 50px;">Definitions</h3>
-        <ul>
-            <li style="font-size: 22px;">
-                In Spanish, both <strong>haber</strong> and <strong>tener</strong> can refer to existence or possession,
-                but they are used in different ways. Click
-                <button type="button" class="btn btn-link p-0 mb-1" data-bs-toggle="modal" data-bs-target="#situationModal">
-                    <strong>here</strong>
-                </button>
-                to see when to use each one.
-            </li>
-        </ul>
-    </div>
-
+  <div class="mt-4">
+      <h3 style="font-size: 50px;">Definitions</h3>
+      <ul>
+          <li style="font-size: 22px;">
+              In Spanish, both <strong>haber</strong> and <strong>tener</strong> mean 'To Have' in English. 
+              But they are used in differently depending on the 
+              <button type="button" class="btn btn-link p-0 mb-1" data-bs-toggle="modal" data-bs-target="#situationModal" 
+                      style="text-decoration: underline; font-size: 22px; color: #007bff;">
+                  <strong>situation</strong>
+              </button>.
+          </li>
+      </ul>
+  </div>
     <!-- Situation Modal for Haber vs. Tener -->
     <div class="modal fade" id="situationModal" tabindex="-1" aria-labelledby="situationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -200,7 +202,7 @@
 
     <!-- Moods are only shown if Conjugations is "on" -->
     <div id="mood-buttons" class="mt-4" style="display: none;">
-      <h4 class="text-center">Select a Mood</h4>
+      <h4 class="text-center">Select Moods</h4>
       <div class="d-flex justify-content-center gap-3 mt-3">
         <!-- Mood Buttons -->
         <button class="btn btn-outline-primary" 
