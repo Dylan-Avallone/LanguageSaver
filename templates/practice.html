@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Practice: Ser vs. Estar</title>
+  <title>Practice: {{ exercise.title }}</title>
+  <h1 class="mb-4">
+    Practice: {{ exercise.title }} (<span id="modeDisplay"></span>)
+  </h1>
+  
+
   <!-- Bootstrap CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
@@ -63,6 +68,8 @@
   </style>
   
   <script>
+ const categories = JSON.parse('{{ categories|safe }}'); // ✅ Convert Flask JSON to JavaScript object
+
  async function fetchSentence() {
     try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -72,7 +79,10 @@
         console.log("📌 Fetching a new sentence for mode:", mode);
         console.log("📌 Tenses for conjugation:", tenses);
 
-        const response = await fetch(`/api/ser_estar?mode=${mode}&tenses=${encodeURIComponent(JSON.stringify(tenses))}`);
+        const exerciseKey = new URLSearchParams(window.location.search).get("exercise") || "ser_estar";
+        const response = await fetch(`/api/${exerciseKey}?mode=${mode}&tenses=${encodeURIComponent(JSON.stringify(tenses))}`);
+
+
         const data = await response.json();
         console.log("✅ Received data:", data);
 
@@ -125,54 +135,50 @@
     }
 }
 
-
-
-
 async function checkAnswer(answer) {
     const correct = document.getElementById("correct").value.trim().toLowerCase();
+    const correctCategory = document.getElementById("correctCategory").value.trim();
     const mode = new URLSearchParams(window.location.search).get("mode") || "reasoning";
-    const tenseButtonsContainer = document.getElementById("tenseButtonsContainer");
+    const exercise = new URLSearchParams(window.location.search).get("exercise") || "ser_estar"; // ✅ Get exercise key
 
     console.log("🔍 Stored correct answer:", correct);
     console.log("🔍 User clicked answer:", answer.trim().toLowerCase());
+    console.log("🛠 checkAnswer() triggered for:", answer);
 
-    if (!tenseButtonsContainer) {
-        console.error("❌ ERROR: Tense buttons container is missing.");
+    if (!correct) {
+        console.error("❌ ERROR: Correct answer is missing!");
         return;
     }
 
-    if (answer.trim().toLowerCase() === correct) {  // ✅ Trim spaces before comparing
+    if (answer.trim().toLowerCase() === correct) {  
         console.log("✅ Correct answer chosen:", answer.trim().toLowerCase());
 
         if (mode === "reasoning") {
             console.log("🔹 Reasoning Mode: Showing category buttons.");
             
             document.getElementById("categoryButtons").style.display = "block";
-            if (answer.trim().toLowerCase() === "ser") {
-                document.getElementById("serSubButtons").style.display = "flex";
-                document.getElementById("estarSubButtons").style.display = "none";
+            const categoryButtonContainer = document.getElementById("categoryButtons");
+            categoryButtonContainer.innerHTML = ""; // Clear previous buttons
+
+            // ✅ Check if categories are correctly structured
+            if (categories[exercise] && categories[exercise][correct]) {
+                categories[exercise][correct].forEach(category => {
+                    const button = document.createElement("button");
+                    button.classList.add("btn", "btn-outline-primary", "m-2");
+                    button.innerText = category;
+                    button.onclick = () => checkCategory(category);
+                    categoryButtonContainer.appendChild(button);
+                });
             } else {
-                document.getElementById("estarSubButtons").style.display = "flex";
-                document.getElementById("serSubButtons").style.display = "none";
+                console.error(`❌ ERROR: categories[${exercise}][${correct}] is undefined!`);
             }
-            
+
             document.getElementById("feedback").innerText = "✅ Correct! Now select the category.";
-            document.getElementById("feedback").className = "feedback correct";
-
-        } else {
-            console.log("🔹 Conjugation Mode: Showing tense selection buttons.");
-            
-            tenseButtonsContainer.style.display = "block";
-            generateTenseButtons(JSON.parse(sessionStorage.getItem("selectedTenses") || "[]"));
-
-            document.getElementById("feedback").innerText = "✅ Correct! Now select the tense.";
             document.getElementById("feedback").className = "feedback correct";
         }
     } else {
         console.log("❌ Incorrect answer! Fetching new sentence...");
-
         document.getElementById("categoryButtons").style.display = "none"; 
-        tenseButtonsContainer.style.display = "none"; 
 
         document.getElementById("feedback").innerText = "❌ Incorrect!";
         document.getElementById("feedback").className = "feedback incorrect";
@@ -182,6 +188,7 @@ async function checkAnswer(answer) {
         }, 1000);
     }
 }
+
 
 
 
@@ -300,33 +307,27 @@ function generateTenseButtons(tenses) {
 <input type="hidden" id="correctCategory" />
 <input type="hidden" id="correctTense" /> 
 
-    <!-- Ser/Estar Buttons (Used in BOTH Reasoning & Conjugation) -->
-<div id="serEstarButtons">
-  <h3>Select Ser or Estar:</h3>
-  <div class="buttons">
-      <button class="btn btn-primary btn-lg" onclick="checkAnswer('ser')">Ser</button>
-      <button class="btn btn-secondary btn-lg" onclick="checkAnswer('estar')">Estar</button>
-  </div>
-</div>
+    <!-- Verb1/Verb2 Answer buttons (Used in BOTH Reasoning & Conjugation) -->
+    <div id="verbButtons">
+      <h3>Select the Correct Verb:</h3>
+      <div class="buttons">
+        {% for verb in exercise.verbs %}
+          <button class="btn btn-primary btn-lg" onclick="checkAnswer('{{ verb }}')">{{ verb.capitalize() }}</button>
+        {% endfor %}
+      </div>
+    </div>
+    
 
-<!-- Sub-buttons for SER & ESTAR (Only for Reasoning Mode) -->
+<!-- Sub-buttons for verb1 & verb2 (Only for Reasoning Mode) -->
 <div id="categoryButtons" style="display: none;">
   <h3>Select the Category:</h3>
-  <div id="serSubButtons" class="button-group mt-3" style="display: none;">
-      <button class="btn btn-outline-primary" onclick="checkCategory('Identity')">Identity</button>
-      <button class="btn btn-outline-success" onclick="checkCategory('Characteristics')">Characteristics</button>
-      <button class="btn btn-outline-warning" onclick="checkCategory('Origin/Nationality')">Origin/Nationality</button>
-      <button class="btn btn-outline-info" onclick="checkCategory('Time/Date')">Time/Date</button>
-      <button class="btn btn-outline-secondary" onclick="checkCategory('Material/Ownership')">Material/Ownership</button>
-  </div>
-
-  <div id="estarSubButtons" class="button-group mt-3" style="display: none;">
-      <button class="btn btn-outline-primary" onclick="checkCategory('Location')">Location</button>
-      <button class="btn btn-outline-success" onclick="checkCategory('Emotions/Conditions')">Emotions/Conditions</button>
-      <button class="btn btn-outline-warning" onclick="checkCategory('Ongoing Actions')">Ongoing Actions</button>
-      <button class="btn btn-outline-info" onclick="checkCategory('Results of Actions')">Results of Actions</button>
+  <div class="button-group mt-3">
+    {% for category in exercise.definitions.keys() %}
+      <button class="btn btn-outline-primary" onclick="checkCategory('{{ category }}')">{{ category }}</button>
+    {% endfor %}
   </div>
 </div>
+
 
 <!-- Tense Selection (Only for Conjugation Mode) -->
 <div id="tenseButtonsContainer" style="display: none;">
