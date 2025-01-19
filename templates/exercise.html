@@ -362,6 +362,7 @@ const EXPLANATIONS = {
 }
 
 
+
 </script>
 
 <!-- Button to start practice with selected tenses -->
@@ -698,6 +699,7 @@ function handleTopLevelButtonClick(button, name) {
     modal.show();
 }
 
+
    
    
 // Show a bootstrap modal with explanation for Reasoning or Conjugations
@@ -751,9 +753,6 @@ function addOption() {
         return;
     }
 
-    // Highlight the button that opened the modal
-    lastTargetButton.classList.add("highlighted");
-
     // Extract name and type from modal title
     const fullTitle = document.getElementById("modal-title").textContent;
     let name = "", type = "";
@@ -764,6 +763,12 @@ function addOption() {
             name = match[1].trim();
             type = match[2].trim();
         }
+    } else if (fullTitle.includes(":")) {
+        const match = fullTitle.match(/Explanation: (.+)/);
+        if (match) {
+            name = match[1].trim();
+            type = "TopLevel";
+        }
     } else {
         console.error("❌ Could not extract name/type from modal title:", fullTitle);
         return;
@@ -771,23 +776,47 @@ function addOption() {
 
     console.log(`🛠 'Add' clicked for ${type}: ${name}`);
 
+    let targetButton = lastTargetButton;
+
+    // Manually find the correct button if lastTargetButton is incorrect
+    if (!targetButton || !targetButton.classList.contains("btn")) {
+        console.warn("⚠️ lastTargetButton seems incorrect, manually searching...");
+        targetButton = Array.from(document.querySelectorAll("button")).find(
+            (btn) => btn.textContent.trim() === name
+        );
+    }
+
+    if (!targetButton) {
+        console.error(`❌ Could not find a button matching "${name}".`);
+        return;
+    }
+
+    // ✅ Ensure the button visually updates
+    targetButton.classList.add("highlighted");
+
     if (type === "TopLevel") {
         if (name === "Reasoning") {
             states.reasoningSelected = true;
+            document.getElementById("mood-buttons").style.display = "none"; 
         } else if (name === "Conjugations") {
             states.conjugationsSelected = true;
             document.getElementById("mood-buttons").style.display = "block"; 
         }
-        toggleExercise(lastTargetButton, name === "Reasoning" ? "reasoningSelected" : "conjugationsSelected");
-    } 
-    else if (type === "Mood") {
+
+        // ✅ Manually find and highlight the correct button
+        const topButtons = document.querySelectorAll(".reasoning-button, .conjugations-button");
+        topButtons.forEach((btn) => {
+            if (btn.textContent.trim() === name) {
+                btn.classList.add("highlighted");
+            }
+        });
+
+    } else if (type === "Mood") {
         const moodKey = name.toLowerCase() + "Selected";
         states[moodKey] = true;
-        lastTargetButton.classList.add("highlighted");
         displayTenses(name.toLowerCase());
         console.log(`✅ Mood "${name}" activated.`);
-    } 
-    else if (type === "Tense") {
+    } else if (type === "Tense") {
         const formattedName = name.replace(/\s/g, "_");
 
         if (!selectedTenses.includes(formattedName)) {
@@ -814,7 +843,6 @@ function addOption() {
     console.log(`✅ ${type} "${name}" added.`);
     lastTargetButton = null;
 }
-
 
 
 
