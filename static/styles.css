@@ -142,8 +142,8 @@ body {
   }
   .reasoning-button {
     color: #fff; /* White text */
-    background-color: #404041; /* Blue background */
-    border-color: #404041; /* Matching border color */
+    background-color: #94949c; /* Blue background */
+    border-color: #94949c; /* Matching border color */
 }
 
 .reasoning-button:hover {
@@ -152,8 +152,8 @@ body {
 }
 .conjugations-button {
   color: #fff; /* White text */
-  background-color: #404041; /* Blue background */
-  border-color: #404041; /* Matching border color */
+  background-color: #94949c; /* Blue background */
+  border-color: #94949c; /* Matching border color */
 }
 
 .conjugations-button:hover {
