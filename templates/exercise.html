@@ -328,28 +328,30 @@ function selectMood(mood) {
     }
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ DOM fully loaded");
 
-  document.addEventListener("DOMContentLoaded", function () {
-      console.log("DOM fully loaded");
+    let reasoningBtn = document.getElementById("reasoningBtn");
+    let conjugationBtn = document.getElementById("conjugationBtn");
 
-      let reasoningBtn = document.getElementById("reasoningBtn");
-      let conjugationBtn = document.getElementById("conjugationBtn");
+    if (!reasoningBtn || !conjugationBtn) {
+        console.error("❌ ERROR: Buttons not found!");
+        return;
+    }
 
-      if (!reasoningBtn || !conjugationBtn) {
-          console.error("Buttons not found!");
-          return;
-      }
+    reasoningBtn.addEventListener("click", function() {
+        console.log("🟢 'Reasoning' button clicked!");
+        handleTopLevelButtonClick(reasoningBtn, "Reasoning");
+    });
 
-      reasoningBtn.addEventListener("click", function() {
-          selectMode("reasoning");
-      });
+    conjugationBtn.addEventListener("click", function() {
+        console.log("🟢 'Conjugations' button clicked!");
+        handleTopLevelButtonClick(conjugationBtn, "Conjugations");
+    });
 
-      conjugationBtn.addEventListener("click", function() {
-          selectMode("conjugation");
-      });
+    console.log("✅ Event listeners added successfully");
+});
 
-      console.log("Event listeners added successfully");
-  });
 </script>
 
 <!-- Tenses for each Mood: Subjunctive -->
@@ -424,6 +426,11 @@ function selectMood(mood) {
     // For tracking which button triggered the modal
     let lastTargetButton = null;
 
+
+
+
+
+    
     /*
       ---------------------------------------------------------
       A) TOP-LEVEL LOGIC ("Reasoning" / "Conjugations") + NOT SURE?
@@ -432,38 +439,49 @@ function selectMood(mood) {
 
     // Toggle the top-level "Not Sure?" mode
     function toggleNotSureTop(button) {
-      states.notSureTop = !states.notSureTop;
-      button.classList.toggle("highlighted", states.notSureTop);
+    states.notSureTop = !states.notSureTop;
+    button.classList.toggle("highlighted", states.notSureTop);
 
-      // Show or hide the top-level explanation text
-      const topText = document.getElementById("not-sure-top-text");
-      topText.style.display = states.notSureTop ? "block" : "none";
+    console.log(`🟡 "Not Sure?" button clicked. New state:`, states.notSureTop);
+
+    // Show or hide the top-level explanation text
+    const topText = document.getElementById("not-sure-top-text");
+    topText.style.display = states.notSureTop ? "block" : "none";
+}
+
+function handleTopLevelButtonClick(button, name) {
+    console.log(`🔹 Handling Button Click: ${name}`);
+
+    const stateKey = name === "Reasoning" ? "reasoningSelected" : "conjugationsSelected";
+
+    // 1. If the button is already active, toggle it off immediately
+    if (states[stateKey]) {
+        console.log(`🔄 ${name} was active, toggling OFF.`);
+        toggleExercise(button, stateKey);
+        return;
     }
 
-    // Handle a click on "Reasoning" or "Conjugations"
-    function handleTopLevelButtonClick(button, name, type) {
-      // 1. If button is already on, just toggle it off (bypass "Not Sure?")
-      if (button.classList.contains("highlighted")) {
-        toggleExercise(button, name === "Reasoning" 
-                                 ? "reasoningSelected"
-                                 : "conjugationsSelected");
-        return; // done
-      }
+    // 2. If "Not Sure?" is active, show the modal instead of activating immediately
+    console.log(`📌 Current state of "Not Sure?": ${states.notSureTop}`);
 
-      // 2. Otherwise, do the "Not Sure?" or direct logic
-      if (states.notSureTop) {
-        // If top-level "Not Sure?" is on, show the modal
-        lastTargetButton = button;
-        showModal("explanationModal", name, type); 
-      } else {
-        // Otherwise, just toggle it directly
-        if (name === "Reasoning") {
-          toggleExercise(button, "reasoningSelected");
-        } else {
-          toggleExercise(button, "conjugationsSelected");
-        }
-      }
+    if (states.notSureTop) {
+        console.log(`🟡 'Not Sure?' is TRUE. Showing modal for ${name}...`);
+        lastTargetButton = button;  // Store button reference for later activation
+        lastTargetMode = stateKey;  // Store which mode to activate
+
+        showTopLevelModal(name);
+        return;
     }
+
+    // 3. Otherwise, activate the mode directly
+    console.log(`✅ Activating ${name} directly.`);
+    toggleExercise(button, stateKey);
+}
+
+
+
+
+
 
     // The same toggle logic as before, but also hide/show Moods if Conjugations toggled
     function toggleExercise(button, exercise) {
@@ -542,70 +560,92 @@ function selectMood(mood) {
       ---------------------------------------------------------
     */
 
-    // Show a bootstrap modal with custom text
-    function showModal(modalId, name, type) {
-      const modalElem = document.getElementById(modalId);
-      const modal = new bootstrap.Modal(modalElem);
+   
+   
+// Show a bootstrap modal with explanation for Reasoning or Conjugations
+function showTopLevelModal(name, callback = null) {
+    console.log(`🛠 ENTERING showTopLevelModal(${name})`);
 
-      const modalTitle = document.getElementById("modal-title");
-      const modalBody = document.getElementById("modal-body");
-
-      // We'll handle "TopLevel" vs. "Mood"/"Tense"
-      modalTitle.textContent = `${type}: ${name}`;
-
-      if (type === "TopLevel") {
-        if (name === "Reasoning") {
-          modalBody.textContent = 
-            "Reasoning Explanation:\n" + 
-            "- For SER: permanent characteristics, identity, origin, occupation, relationships.\n" +
-            "- For ESTAR: temporary states, conditions, or locations.";
-        } else {
-          modalBody.textContent = 
-            "Conjugations Explanation: A review of verb forms (SER/ESTAR) across various tenses.";
-        }
-      } else {
-        // For Moods/Tenses
-        modalBody.textContent = `Explanation for ${name} (${type}). This is when and how it is used.`;
-      }
-
-      modal.show();
+    const modalElem = document.getElementById("explanationModal");
+    if (!modalElem) {
+        console.error("❌ ERROR: explanationModal NOT FOUND in DOM.");
+        return;
     }
+
+    console.log("✅ Modal element FOUND. Proceeding to show...");
+
+    const modal = new bootstrap.Modal(modalElem);
+    const modalTitle = document.getElementById("modal-title");
+    const modalBody = document.getElementById("modal-body");
+
+    modalTitle.textContent = `Explanation: ${name}`;
+    
+    if (name === "Reasoning") {
+        modalBody.textContent = 
+            "- Reasoning mode helps determine the correct verb based on **context**.\n" +
+            "- **Ser** is used for identity, characteristics, origin, and definitions.\n" +
+            "- **Estar** is used for emotions, locations, conditions, and ongoing actions.";
+    } else if (name === "Conjugations") {
+        modalBody.textContent = 
+            "- Conjugation mode focuses on practicing different verb tenses.\n" +
+            "- You'll need to select the correct tense of the verb in the blank.";
+    } else {
+        modalBody.textContent = "Explanation not found.";
+    }
+
+    modal.show();
+    console.log("✅ Modal SHOW command executed.");
+
+    modalElem.addEventListener("hidden.bs.modal", function () {
+        console.log(`✅ Modal for ${name} was closed.`);
+        if (callback) {
+            console.log("Executing callback...");
+            callback();
+        }
+    }, { once: true });
+}
+
+
 
     // Called when user clicks "Add" in the modal
     function addOption() {
-      if (!lastTargetButton) return;
+    if (!lastTargetButton) return;
 
-      // 1. Highlight the original button
-      lastTargetButton.classList.add("highlighted");
+    // 1. Highlight the original button
+    lastTargetButton.classList.add("highlighted");
 
-      // 2. Parse the current modal title, e.g. "TopLevel: Reasoning"
-      const fullTitle = document.getElementById("modal-title").textContent;
-      const [type, name] = fullTitle.split(": ").map(s => s.trim());
+    // 2. Parse the current modal title, e.g., "TopLevel: Reasoning"
+    const fullTitle = document.getElementById("modal-title").textContent;
+    const [type, name] = fullTitle.split(": ").map(s => s.trim());
 
-      // 3. Based on type, turn "on"
-      if (type === "TopLevel") {
+    console.log(`🛠 'Add' clicked for ${type}: ${name}`);
+
+    // 3. Based on type, turn "on"
+    if (type === "TopLevel") {
         if (name === "Reasoning") {
-          states.reasoningSelected = true;
-        } else {
-          states.conjugationsSelected = true;
-          // If we turn Conjugations on, show the mood buttons
-          document.getElementById("mood-buttons").style.display = "block";
+            states.reasoningSelected = true;
+        } else if (name === "Conjugations") {
+            states.conjugationsSelected = true;
+            document.getElementById("mood-buttons").style.display = "block";
         }
-      } else if (type === "Mood") {
+    } else if (type === "Mood") {
         const moodKey = name.toLowerCase() + "Selected";
         states[moodKey] = true;
         displayTenses(name.toLowerCase());
-      }
-      // "Tense" could also be handled if needed
-
-      // 4. Close the modal
-      const modalElem = document.getElementById("explanationModal");
-      const modal = bootstrap.Modal.getInstance(modalElem);
-      modal.hide();
-
-      console.log(`${type} "${name}" added.`);
-      lastTargetButton = null;
     }
+
+    // 4. Toggle the actual button ON (wasn't happening before!)
+    toggleExercise(lastTargetButton, name === "Reasoning" ? "reasoningSelected" : "conjugationsSelected");
+
+    // 5. Close the modal
+    const modalElem = document.getElementById("explanationModal");
+    const modal = bootstrap.Modal.getInstance(modalElem);
+    modal.hide();
+
+    console.log(`✅ ${type} "${name}" added.`);
+    lastTargetButton = null;
+}
+
   </script>
 </body>
 </html>
