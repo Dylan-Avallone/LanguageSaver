@@ -125,7 +125,7 @@ def practice_page():
 counts = defaultdict(int)  # This ensures all verbs are initialized dynamically
 generated_sentences = set()  # Track generated sentences to avoid duplicates
 recent_verb_forms = set() # Track recently used verb forms to avoid immediate repeats
-MAX_RECENT = 3  # Adjust this value to allow variety while avoiding immediate repeats
+MAX_RECENT_VERBS = 3  # Adjust this value to allow variety while avoiding immediate repeats
 
 
 
@@ -268,6 +268,9 @@ conjugations = {
 
 
 
+recent_verb_forms = set()  # Tracks recently used conjugated forms
+MAX_RECENT_VERBS = 3  # Prevents immediate repeats but allows variety
+
 def generate_conjugation_sentence(exercise_key, tenses):
     """
     Calls OpenAI to generate a Spanish sentence requiring a verb from the selected exercise
@@ -276,8 +279,7 @@ def generate_conjugation_sentence(exercise_key, tenses):
     max_retries = 10
     attempts = 0
 
-    global categories, conjugations, generated_sentences
-    
+    global categories, conjugations, generated_sentences, recent_verb_forms
 
     # ✅ Ensure the selected exercise exists
     if exercise_key not in categories:
@@ -313,20 +315,15 @@ def generate_conjugation_sentence(exercise_key, tenses):
 
             possible_forms = conjugations[correct_answer][chosen_tense]
 
-            # Remove recently used verb forms from selection
-            filtered_forms = [form for form in possible_forms if form not in recent_verb_forms]
+            # ✅ Remove recently used verb forms from selection
+            available_conjugations = [form for form in possible_forms if form not in recent_verb_forms]
 
-            # ✅ If filtering removes all options, reset recent list
-            if not filtered_forms:
+            # ✅ If all conjugations are removed, reset tracking
+            if not available_conjugations:
                 recent_verb_forms.clear()
-                filtered_forms = possible_forms
+                available_conjugations = possible_forms
 
-            chosen_conjugation = random.choice(filtered_forms)
-
-            # ✅ Track used verb form
-            recent_verb_forms.add(chosen_conjugation)
-            if len(recent_verb_forms) > MAX_RECENT:
-                recent_verb_forms.pop()  # Remove the oldest verb form to allow variety
+            chosen_conjugation = random.choice(available_conjugations)
 
             # ✅ Call OpenAI API
             response = openai.ChatCompletion.create(
@@ -361,7 +358,7 @@ def generate_conjugation_sentence(exercise_key, tenses):
             response_content = response["choices"][0]["message"]["content"].strip()
             data = json.loads(response_content.replace("'", "\""))
 
-            # ✅ Validate if AI response matches selected tense
+            # ✅ Ensure AI-generated tense matches a valid one
             if data["tense"].lower() not in tenses:
                 print(f"❌ AI used an invalid tense: {data['tense']}. Retrying...")
                 attempts += 1
@@ -373,8 +370,13 @@ def generate_conjugation_sentence(exercise_key, tenses):
                 attempts += 1
                 continue  
 
+            # ✅ Store unique sentence
             generated_sentences.add(data["sentence"])
-            counts[data["correct"]] += 1
+
+            # ✅ Track recently used verb forms with a limit
+            recent_verb_forms.add(chosen_conjugation)
+            if len(recent_verb_forms) > MAX_RECENT_VERBS:
+                recent_verb_forms.pop()  # Remove the oldest verb form
 
             return data
 
@@ -403,13 +405,11 @@ def generate_reason_sentence(exercise_key):
     max_retries = 10
     attempts = 0
 
-    global categories, conjugations, generated_sentences
+    global categories, conjugations, generated_sentences, recent_verb_forms
 
     if exercise_key not in categories:
         print(f"❌ ERROR: '{exercise_key}' not found in categories!")
         return {"error": "Invalid exercise key"}
-
-    used_verb_forms = set()  # Tracks used conjugations to avoid repeats
 
     while attempts < max_retries:
         try:
@@ -423,15 +423,14 @@ def generate_reason_sentence(exercise_key):
             chosen_category = random.choice(categories[exercise_key][correct_answer])
 
             # ✅ Choose a conjugation from the correct verb's present tense
-            available_conjugations = [form for form in conjugations[correct_answer]["present"] if form not in used_verb_forms]
-            
-            # ✅ If all conjugations have been used, reset to allow variety
+            available_conjugations = [form for form in conjugations[correct_answer]["present"] if form not in recent_verb_forms]
+
+            # ✅ If all conjugations have been used, allow resets (but keep last few)
             if not available_conjugations:
-                used_verb_forms.clear()
+                recent_verb_forms.clear()
                 available_conjugations = conjugations[correct_answer]["present"]
 
             chosen_conjugation = random.choice(available_conjugations)
-            used_verb_forms.add(chosen_conjugation)
 
             # ✅ Call OpenAI API with the correct format
             response = openai.ChatCompletion.create(
@@ -483,7 +482,7 @@ def generate_reason_sentence(exercise_key):
                 print(f"❌ AI returned an invalid category: {data['category']}. Retrying...")
                 attempts += 1
                 continue
-            if data["verb_form"] in used_verb_forms:
+            if data["verb_form"] in recent_verb_forms:
                 print(f"⚠ Duplicate verb form detected: {data['verb_form']}. Retrying...")
                 attempts += 1
                 continue
@@ -494,9 +493,13 @@ def generate_reason_sentence(exercise_key):
                 attempts += 1
                 continue  # Retry with a new sentence
 
-            # ✅ Store unique sentence and verb form
+            # ✅ Store unique sentence
             generated_sentences.add(data["sentence"])
-            used_verb_forms.add(data["verb_form"])
+
+            # ✅ Update `recent_verb_forms` with limit
+            recent_verb_forms.add(data["verb_form"])
+            if len(recent_verb_forms) > MAX_RECENT_VERBS:
+                recent_verb_forms.pop()  # Remove oldest form from tracking
 
             return data
 
