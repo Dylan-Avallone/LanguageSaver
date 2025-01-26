@@ -18,9 +18,17 @@
     </style>
   </head>
 
-<body>
+<body class="fade-in">
+
+  <script>
+     // Always enable Dark Mode on page load
+     localStorage.setItem("dark-mode", "enabled");
+    document.addEventListener("DOMContentLoaded", function () {
+        document.body.classList.add("dark-mode");
+    });
+  </script>
   <div class="text-center mt-4">
-    <a href="/" class="btn btn-secondary">Back to Exercise Selection</a>
+    <a href="/" class="bottom-right-button">Back to Exercise Selection</a>
   </div>
   
 <!-- Ensure content only appears for Ser vs. Estar -->
@@ -34,7 +42,7 @@
         <li style="font-size: 22px;">
           In English, we use <strong>"to be"</strong> for everything:
           But in Spanish, you must choose <strong>ser</strong> or <strong>estar</strong> based on the
-          <button type="button" class="btn btn-link p-0 mb-1" data-bs-toggle="modal" data-bs-target="#situationModal" style="text-decoration: underline; font-size: 22px; color: #007bff;">
+          <button type="button" class="btn darkmode-c3" data-bs-toggle="modal" data-bs-target="#situationModal" style="text-decoration: underline; font-size: 22px; color: #007bff; position: relative; top: -6px;">
             <strong>situation</strong>
           </button>
         </li>
@@ -50,24 +58,24 @@
                   <div class="row">
                       <!-- Left Column for Ser -->
                       <div class="col-md-6">
-                          <strong class="identity">Ser (Permanent or Defining Traits)</strong>
+                          <strong class="modal-text">Ser (Permanent or Defining Traits)</strong>
                           <ul>
-                              <li><strong class="identity">Identity</strong>: Soy Juan. (I am Juan.)</li>
-                              <li><strong class="characteristics">Characteristics</strong>: Él es alto. (He is tall.)</li>
-                              <li><strong class="origin">Origin/Nationality</strong>: Somos de México. (We are from Mexico.)</li>
-                              <li><strong class="time-date">Time/Date</strong>: Hoy es martes. (Today is Tuesday.)</li>
-                              <li><strong class="material">Material/Ownership</strong>: La mesa es de madera. (The table is made of wood.)</li>
+                              <li><strong class="modal-text">Identity</strong>: Soy Juan. (I am Juan.)</li>
+                              <li><strong class="modal-text">Characteristics</strong>: Él es alto. (He is tall.)</li>
+                              <li><strong class="modal-text">Origin/Nationality</strong>: Somos de México. (We are from Mexico.)</li>
+                              <li><strong class="modal-text">Time/Date</strong>: Hoy es martes. (Today is Tuesday.)</li>
+                              <li><strong class="modal-text">Material/Ownership</strong>: La mesa es de madera. (The table is made of wood.)</li>
                           </ul>
                       </div>
 
                       <!-- Right Column for Estar -->
                       <div class="col-md-6">
-                          <strong class="location">Estar (Temporary or Changing States)</strong>
+                          <strong class="modal-text">Estar (Temporary or Changing States)</strong>
                           <ul>
-                              <li><strong class="location">Location</strong>: Estoy en la casa. (I am at home.)</li>
-                              <li><strong class="emotions">Emotions/Conditions</strong>: Está triste. (He is sad.)</li>
-                              <li><strong class="ongoing">Ongoing Actions</strong>: Estoy estudiando. (I am studying.)</li>
-                              <li><strong class="results">Results of Actions</strong>: La puerta está abierta. (The door is open.)</li>
+                              <li><strong class="modal-text">Location</strong>: Estoy en la casa. (I am at home.)</li>
+                              <li><strong class="modal-text">Emotions/Conditions</strong>: Está triste. (He is sad.)</li>
+                              <li><strong class="modal-text">Ongoing Actions</strong>: Estoy estudiando. (I am studying.)</li>
+                              <li><strong class="modal-text">Results of Actions</strong>: La puerta está abierta. (The door is open.)</li>
                           </ul>
                       </div>
                   </div>
@@ -85,10 +93,10 @@
           <li style="font-size: 22px;">
               In Spanish, both <strong>haber</strong> and <strong>tener</strong> mean 'To Have' in English. 
               But they are used in differently depending on the 
-              <button type="button" class="btn btn-link p-0 mb-1" data-bs-toggle="modal" data-bs-target="#situationModal" 
-                      style="text-decoration: underline; font-size: 22px; color: #007bff;">
+              <button type="button" class="btn btn darkmode-c3" data-bs-toggle="modal" data-bs-target="#situationModal" 
+              style="text-decoration: underline; font-size: 22px; color: #007bff; position: relative; top: -6px;">
                   <strong>situation</strong>
-              </button>.
+              </button>
           </li>
       </ul>
   </div>
@@ -131,10 +139,10 @@
             <li style="font-size: 22px;">
                 In Spanish, both <strong>por</strong> and <strong>para</strong> translate to "for," but they have different meanings 
                 depending on the 
-                <button type="button" class="btn btn-link p-0 mb-1" data-bs-toggle="modal" data-bs-target="#situationModalPorPara" 
-                        style="text-decoration: underline; font-size: 22px; color: #007bff;">
+                <button type="button" class="btn btn darkmode-c3" data-bs-toggle="modal" data-bs-target="#situationModalPorPara" 
+                style="text-decoration: underline; font-size: 22px; color: #007bff; position: relative; top: -4px;">
                     <strong>context</strong>
-                </button>.
+                </button>
             </li>
             <li style="font-size: 22px;">
              For this exercise there wont be conjugation practice as these are prepositions. You will need to focus on your reasoning as there are many use cases for <strong>por</strong> and <strong>para</strong>. 
@@ -361,15 +369,15 @@ const EXPLANATIONS = {
       <h4 class="text-center">Select Moods</h4>
       <div class="d-flex justify-content-center gap-3 mt-3">
         <!-- Mood Buttons -->
-        <button class="btn btn-outline-primary" 
+        <button class="btn btn indicative" 
                 onclick="handleButtonClick(this, 'Indicative', 'Mood')">
           Indicative
         </button>
-        <button class="btn btn-outline-danger" 
+        <button class="btn btn subjunctive" 
                 onclick="handleButtonClick(this, 'Subjunctive', 'Mood')">
           Subjunctive
         </button>
-        <button class="btn btn-outline-warning" 
+        <button class="btn btn imperative" 
                 onclick="handleButtonClick(this, 'Imperative', 'Mood')">
           Imperative
         </button>
@@ -387,13 +395,13 @@ const EXPLANATIONS = {
 <div id="indicative-tenses" class="mt-4" style="display: none;">
   <h4 class="text-center">Indicative Tenses</h4>
   <div class="d-flex justify-content-center gap-3 mt-3">
-    <button class="btn btn-outline-primary" onclick="toggleTense(this, 'Present', 'Tense')">Present</button>
-    <button class="btn btn-outline-info" onclick="toggleTense(this, 'Present Perfect')">Present Perfect</button>
-    <button class="btn btn-outline-secondary" onclick="toggleTense(this, 'Past Imperfect')">Past Imperfect</button>
-    <button class="btn btn-outline-danger" onclick="toggleTense(this, 'Past Perfect')">Past Perfect</button>
-    <button class="btn btn-outline-success" onclick="toggleTense(this, 'Future')">Future</button>
-    <button class="btn btn-outline-dark" onclick="toggleTense(this, 'Future Perfect')">Future Perfect</button>
-    <button class="btn btn-outline-warning" onclick="toggleTense(this, 'Conditional')">Conditional</button> 
+    <button class="btn btn darkmode-c1" onclick="toggleTense(this, 'Present', 'Tense')">Present</button>
+    <button class="btn btn darkmode-c5" onclick="toggleTense(this, 'Present Perfect')">Present Perfect</button>
+    <button class="btn btn darkmode-c2" onclick="toggleTense(this, 'Past Imperfect')">Past Imperfect</button>
+    <button class="btn btn darkmode-c4" onclick="toggleTense(this, 'Past Perfect')">Past Perfect</button>
+    <button class="btn btn darkmode-c6" onclick="toggleTense(this, 'Future')">Future</button>
+    <button class="btn btn darkmode-c8" onclick="toggleTense(this, 'Future Perfect')">Future Perfect</button>
+    <button class="btn btn darkmode-c10" onclick="toggleTense(this, 'Conditional')">Conditional</button> 
 
   </div>
 </div>
@@ -440,7 +448,7 @@ const EXPLANATIONS = {
 
 
 
-<!--selectMode function that redirects user to practice page with mode parameter-->>
+<!--selectMode function that redirects user to practice page with mode parameter-->
 
 
 <script>
@@ -521,10 +529,10 @@ document.addEventListener("DOMContentLoaded", function () {
 <div id="subjunctive-tenses" class="mt-4" style="display: none;">
   <h4 class="text-center">Subjunctive Tenses</h4>
   <div class="d-flex justify-content-center gap-3 mt-3">
-    <button class="btn btn-outline-primary" onclick="toggleTense(this, 'Present Subjunctive')">Present Subjunctive</button>
-    <button class="btn btn-outline-info" onclick="toggleTense(this, 'Present Perfect Subjunctive')">Present Perfect Subjunctive</button>
-    <button class="btn btn-outline-secondary" onclick="toggleTense(this, 'Past Imperfect Subjunctive')">Past Imperfect Subjunctive</button>
-    <button class="btn btn-outline-danger" onclick="toggleTense(this, 'Past Perfect Subjunctive')">Past Perfect Subjunctive</button>
+    <button class="btn btn darkmode-c11" onclick="toggleTense(this, 'Present Subjunctive')">Present Subjunctive</button>
+    <button class="btn btn darkmode-c12" onclick="toggleTense(this, 'Present Perfect Subjunctive')">Present Perfect Subjunctive</button>
+    <button class="btn btn darkmode-c17" onclick="toggleTense(this, 'Past Imperfect Subjunctive')">Past Imperfect Subjunctive</button>
+    <button class="btn btn darkmode-c16" onclick="toggleTense(this, 'Past Perfect Subjunctive')">Past Perfect Subjunctive</button>
   </div>
 </div>
 
@@ -532,8 +540,8 @@ document.addEventListener("DOMContentLoaded", function () {
 <div id="imperative-tenses" class="mt-4" style="display: none;">
   <h4 class="text-center">Imperative Tenses</h4>
   <div class="d-flex justify-content-center gap-3 mt-3">
-    <button class="btn btn-outline-primary" onclick="toggleTense(this, 'Affirmative Imperative')">Affirmative Imperative</button>
-    <button class="btn btn-outline-secondary" onclick="toggleTense(this, 'Negative Imperative')">Negative Imperative</button>
+    <button class="btn btn darkmode-c20" onclick="toggleTense(this, 'Affirmative Imperative')">Affirmative Imperative</button>
+    <button class="btn btn darkmode-c19" onclick="toggleTense(this, 'Negative Imperative')">Negative Imperative</button>
   </div>
 </div>
   </div>

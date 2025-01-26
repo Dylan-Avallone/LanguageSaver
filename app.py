@@ -165,7 +165,6 @@ categories = {
 }
 
 
-
 def get_weighted_choice(exercise_key):
     """
     Dynamically adjust probabilities for words in any exercise to ensure balance.
@@ -307,9 +306,11 @@ def generate_conjugation_sentence(exercise_key, tenses):
 
     global categories, conjugations, generated_sentences, recent_verb_forms
 
-    # ✅ Ensure the selected exercise exists
-    if exercise_key not in categories:
-        print(f"❌ ERROR: '{exercise_key}' not found in categories!")
+    # ✅ Ensure the selected exercise is inside "verb_exercises"
+    if exercise_key in categories["verb_exercises"]:
+        category_data = categories["verb_exercises"]
+    else:
+        print(f"❌ ERROR: '{exercise_key}' not found in verb exercises!")
         return {"error": "Invalid exercise key"}
 
     # ✅ If no tenses are provided, fallback to all tenses
@@ -328,9 +329,9 @@ def generate_conjugation_sentence(exercise_key, tenses):
         try:
             print(f"📌 Generating conjugation sentence for: {exercise_key}")
 
-            # ✅ Randomly choose one of the two verbs in the selected exercise
-            verbs = list(categories[exercise_key].keys())
-            correct_answer = random.choice(verbs)
+            # ✅ Retrieve the two verbs associated with this exercise
+            words = list(category_data[exercise_key].keys())  # e.g., ["ser", "estar"]
+            correct_answer = random.choice(words)
 
             # ✅ Ensure AI selects a valid conjugation
             chosen_tense = random.choice(tenses)
@@ -565,32 +566,34 @@ def api_exercise(exercise_key):
     GET -> Returns a new sentence for either reasoning or conjugation (based on request params).
     POST -> Checks the user's answer and returns feedback.
     """
-    if request.method == "POST":
-        user_answer = request.json.get("answer")
-        correct_answer = request.json.get("correct")
-        feedback = "Correct!" if user_answer == correct_answer else "Incorrect!"
-        return jsonify({"feedback": feedback})
+    print(f"📌 DEBUG: Received API request for exercise: {exercise_key}")
 
     mode = request.args.get("mode", "reasoning")
 
-    # ✅ Fix: Extract exercise_key properly and pass it
-    if mode == "conjugation":
+    # ✅ Determine whether exercise belongs to verbs or prepositions
+    is_verb_exercise = exercise_key in categories["verb_exercises"]
+    is_preposition_exercise = exercise_key in categories["preposition_exercises"]
+
+    if not is_verb_exercise and not is_preposition_exercise:
+        print(f"❌ ERROR: Invalid exercise key received: {exercise_key}")
+        return jsonify({"error": "Invalid exercise key"}), 400
+
+    if mode == "conjugation" and is_verb_exercise:
         tenses_raw = request.args.get("tenses", "[]")
-        print(f"📌 Raw tenses from request: {tenses_raw}")
+        print(f"📌 DEBUG: Raw tenses from request: {tenses_raw}")
 
         try:
             tenses = json.loads(tenses_raw) if tenses_raw else []
         except json.JSONDecodeError as e:
-            print(f"❌ JSON Decode Error: {e}")
+            print(f"❌ ERROR: JSON Decode Error: {e}")
             tenses = []  # Fallback to empty list
 
-        print(f"📌 Parsed tenses: {tenses}")
-        new_sentence = generate_conjugation_sentence(exercise_key, tenses)  # ✅ Pass `exercise_key` explicitly
+        print(f"📌 DEBUG: Parsed tenses: {tenses}")
+        new_sentence = generate_conjugation_sentence(exercise_key, tenses)  
     else:
         new_sentence = generate_reason_sentence(exercise_key)
 
     return jsonify(new_sentence)
-
 
 
 

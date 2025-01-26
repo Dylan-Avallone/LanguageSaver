@@ -3,17 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Practice: {{ exercise.title }}</title>
-  <h1 class="mb-4">
+  <h2 class="mb-4">
     Practice: {{ exercise.title }} (<span id="modeDisplay"></span>)
-  </h1>
+  </h2>
   
 
   <!-- Bootstrap CSS -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <style>
     body {
       background-color: #f4f4f9;
@@ -27,7 +24,7 @@
     .sentence {
       font-size: 2.5rem;
       font-weight: bold;
-      color: #333;
+      color: rgb(80, 79, 79);
       text-align: center;
       margin-bottom: 30px;
     }
@@ -68,6 +65,11 @@
   </style>
   
   <script>
+       // Always enable Dark Mode on page load
+       localStorage.setItem("dark-mode", "enabled");
+    document.addEventListener("DOMContentLoaded", function () {
+        document.body.classList.add("dark-mode");
+    });
  const categories = JSON.parse('{{ categories|safe }}'); // ✅ Convert Flask JSON to JavaScript object
 
  async function fetchSentence() {
@@ -140,6 +142,7 @@ async function checkAnswer(answer) {
     const mode = new URLSearchParams(window.location.search).get("mode") || "reasoning";
     const exerciseKey = new URLSearchParams(window.location.search).get("exercise") || "ser_estar";
     const categoryButtons = document.getElementById("categoryButtons");
+    const tenseButtonsContainer = document.getElementById("tenseButtonsContainer"); 
     const feedbackEl = document.getElementById("feedback");
 
     console.log("🔍 Stored correct answer:", correct);
@@ -147,8 +150,8 @@ async function checkAnswer(answer) {
     console.log("📌 Current Mode:", mode);
     console.log("📌 Selected Exercise:", exerciseKey);
 
-    if (!categoryButtons) {
-        console.error("❌ ERROR: `categoryButtons` div not found!");
+    if (!categoryButtons || !tenseButtonsContainer) {
+        console.error("❌ ERROR: `categoryButtons` or `tenseButtonsContainer` div not found!");
         return;
     }
 
@@ -157,46 +160,89 @@ async function checkAnswer(answer) {
 
         if (mode === "reasoning") {
             console.log("🔹 Reasoning Mode: Showing category buttons.");
-
-            // ✅ Dynamically generate category buttons
             categoryButtons.innerHTML = ""; // Clear existing buttons
 
-            // ✅ Check if the exercise is preposition-based or verb-based
             let isPrepositionExercise = exerciseKey === "por_para";
-            
-            if (isPrepositionExercise && categories.preposition_exercises[exerciseKey] && categories.preposition_exercises[exerciseKey][correct]) {
-                categories.preposition_exercises[exerciseKey][correct].forEach(category => {
+            let categoriesList = isPrepositionExercise
+                ? categories.preposition_exercises[exerciseKey][correct]
+                : categories.verb_exercises[exerciseKey][correct];
+
+            if (categoriesList) {
+                const colors = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10"];
+                const darkModeColors = ["darkmode-c1", "darkmode-c2", "darkmode-c3", "darkmode-c4", "darkmode-c5",
+                                        "darkmode-c6", "darkmode-c7", "darkmode-c8", "darkmode-c9", "darkmode-c10"];
+                
+                let assignedColors = {}; // Ensure consistent colors for the same category
+
+                const isDarkMode = document.body.classList.contains("dark-mode");
+
+                categoriesList.forEach((category, index) => {
                     const button = document.createElement("button");
-                    button.classList.add("btn", "btn-outline-primary", "m-2");
+
+                    if (!assignedColors[category]) {
+                        assignedColors[category] = isDarkMode ? darkModeColors[index % darkModeColors.length] : colors[index % colors.length];
+                    }
+
+                    button.classList.add("btn", "category-button", "m-2", assignedColors[category]);
                     button.innerText = category;
                     button.onclick = () => checkCategory(category);
                     categoryButtons.appendChild(button);
                 });
 
-            } else if (!isPrepositionExercise && categories.verb_exercises[exerciseKey] && categories.verb_exercises[exerciseKey][correct]) {
-                categories.verb_exercises[exerciseKey][correct].forEach(category => {
-                    const button = document.createElement("button");
-                    button.classList.add("btn", "btn-outline-primary", "m-2");
-                    button.innerText = category;
-                    button.onclick = () => checkCategory(category);
-                    categoryButtons.appendChild(button);
-                });
+                categoryButtons.style.display = "block"; 
             } else {
-                console.error("❌ ERROR: Categories for this exercise are missing.");
+                console.error(`❌ ERROR: Categories for ${exerciseKey} are missing.`);
                 return;
             }
 
-            categoryButtons.style.display = "block"; // ✅ Ensure visibility
             feedbackEl.innerText = "✅ Correct! Now select the category.";
             feedbackEl.className = "feedback correct";
-            console.log("📌 Generated category buttons:", categories[exerciseKey][correct]);
-        } else {
-            console.log("🔹 Conjugation Mode: Skipping category selection.");
+
+        } else if (mode === "conjugation") {
+            console.log("🔹 Conjugation Mode: Showing tense selection.");
+            tenseButtonsContainer.innerHTML = ""; // Clear previous tense buttons
+
+            const selectedTenses = JSON.parse(sessionStorage.getItem("selectedTenses") || "[]");
+            console.log("📌 Selected Tenses:", selectedTenses);
+
+            if (selectedTenses.length === 0) {
+                console.error("❌ ERROR: No tenses selected.");
+                return;
+            }
+
+            const colors = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10"];
+            const darkModeColors = ["darkmode-c1", "darkmode-c2", "darkmode-c3", "darkmode-c4", "darkmode-c5",
+                                    "darkmode-c6", "darkmode-c7", "darkmode-c8", "darkmode-c9", "darkmode-c10"];
+            
+            let assignedColors = {}; // Ensure each tense gets the same color
+
+            const isDarkMode = document.body.classList.contains("dark-mode");
+
+            selectedTenses.forEach((tense, index) => {
+                const button = document.createElement("button");
+
+                if (!assignedColors[tense]) {
+                    assignedColors[tense] = isDarkMode ? darkModeColors[index % darkModeColors.length] : colors[index % colors.length];
+                }
+
+                button.classList.add("btn", "tense-button", "m-2", assignedColors[tense]);
+                button.innerText = tense;
+                button.onclick = () => checkTense(tense);
+                tenseButtonsContainer.appendChild(button);
+            });
+
+            tenseButtonsContainer.style.display = "block"; // Show the tense buttons
+
+            feedbackEl.innerText = "✅ Correct! Now select the correct tense.";
+            feedbackEl.className = "feedback correct";
         }
     } else {
-        console.log("❌ Incorrect answer! Fetching new sentence...");
+        console.log("❌ Incorrect answer detected! Retrying...");
+        console.log("❌ Expected:", `"${correct}"`);
+        console.log("❌ User Input:", `"${answer.trim().toLowerCase()}"`);
 
-        categoryButtons.style.display = "none"; // ✅ Hide category selection on incorrect answer
+        categoryButtons.style.display = "none"; 
+        tenseButtonsContainer.style.display = "none"; 
         feedbackEl.innerText = "❌ Incorrect!";
         feedbackEl.className = "feedback incorrect";
 
@@ -205,6 +251,9 @@ async function checkAnswer(answer) {
         }, 1000);
     }
 }
+
+
+
 
 
 
@@ -305,51 +354,43 @@ function generateTenseButtons(tenses) {
 </head>
 <body>
   <div class="text-center mt-4">
-    <a href="/" class="btn btn-secondary">Back to Exercise Selection</a>
+    <a href="/" class="bottom-right-button">Back to Exercise Selection</a>
   </div>
 
-  <div class="container text-center">
-    <h1 class="mb-4">
-      Practice: Ser vs. Estar (<span id="modeDisplay"></span>)
-    </h1>
-    
-<script>
-  document.getElementById("practice-mode").innerText = "({{ mode }})";
-</script>
-
-  </div>
-
-    <div id="sentence" class="sentence">Loading...</div>
+    <div id="sentence" class="darkmode-sentence">Loading...</div>
     <input type="hidden" id="correct" />
 <input type="hidden" id="correctCategory" />
 <input type="hidden" id="correctTense" /> 
 
     <!-- Verb1/Verb2 Answer buttons (Used in BOTH Reasoning & Conjugation) -->
     <div id="verbButtons">
-      <h3>Select the Correct Answer:</h3>
+      <h3 class = "dark-mode h3 " style="position: relative; top: 16px;">Select the Correct Answer:</h3>
       <div class="buttons">
         {% if exercise.verbs %}
           {% for verb in exercise.verbs %}
-            <button class="btn btn-primary btn-lg" onclick="checkAnswer('{{ verb }}')">{{ verb.capitalize() }}</button>
+            <button class="btn btn-primary btn-lg"  onclick="checkAnswer('{{ verb }}')" style="position: relative; top: 16px;" >{{ verb.capitalize() }}</button>
           {% endfor %}
           <!--If its a perposition exercise, output preposition buttons-->
         {% elif exercise.prepositions %}
           {% for preposition in exercise.prepositions %}
-            <button class="btn btn-primary btn-lg" onclick="checkAnswer('{{ preposition }}')">{{ preposition.capitalize() }}</button>
+            <button class="btn btn-primary btn-lg" onclick="checkAnswer('{{ preposition }}')" style="position: relative; top: 16px;">{{ preposition.capitalize() }}</button>
           {% endfor %}
         {% endif %}
       </div>
     </div>
 
-<!-- Sub-buttons for verb1 & verb2 (Only for Reasoning Mode) -->
+<!-- Category Buttons (Only for Reasoning Mode) -->
 <div id="categoryButtons" style="display: none;">
   <h3>Select the Category:</h3>
   <div class="button-group mt-3">
     {% for category in exercise.definitions.keys() %}
-      <button class="btn btn-outline-primary" onclick="checkCategory('{{ category }}')">{{ category }}</button>
+      <button class="btn category-button" data-category="{{ category }}" onclick="checkCategory('{{ category }}')">
+        {{ category }}
+      </button>
     {% endfor %}
   </div>
 </div>
+
 
 
 <!-- Tense Selection (Only for Conjugation Mode) -->
@@ -386,9 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (tenseDisplay) {
         if (selectedTenses.length > 0) {
             tenseDisplay.innerText = "Selected Tenses: " + selectedTenses.join(", ");
-        } else {
-            tenseDisplay.innerText = "No tenses selected.";
-        }
+        } 
     } else {
         console.error("❌ ERROR: tenseDisplay element is missing.");
     }
@@ -398,6 +437,8 @@ document.addEventListener("DOMContentLoaded", function () {
         generateTenseButtons(selectedTenses);
     }
 
+
+   
     // ✅ Fetch a new sentence after ensuring everything is set
     fetchSentence();
 });

@@ -1,87 +1,93 @@
+/* Fade-in effect */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+  }
+  to {
+      opacity: 1;
+  }
+}
+
+/* Apply fade-in to the entire page */
+.fade-in {
+  animation: fadeIn 1.5s ease-out;
+}
+
+
+
+
+
+
+
+
 /* General Styles */
-/* Color classes for each category */
-.identity {
-  background-color: white;
-  color: #007bff; /* Blue for Identity */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.characteristics {
-  background-color: white;
-  color: #28a745; /* Green for Characteristics */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.origin {
-  background-color: white;
-  color: #ffc107; /* Yellow for Origin/Nationality */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.time-date {
-  background-color: white;
-  color: #17a2b8; /* Cyan for Time/Date */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.material {
-  background-color: white;
-  color: #6c757d; /* Gray for Material/Ownership */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.location {
-  background-color: white;
-  color: #613141; /* Red for Location */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.emotions {
-  background-color: white;
-  color: #fd7e14; /* Orange for Emotions/Conditions */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.ongoing {
-  background-color: white;
-  color: #6610f2; /* Purple for Ongoing Actions */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.results {
-  background-color: white;
-  color: #e83e8c; /* Pink for Results of Actions */
-  padding: 5px;
-  border-radius: 3px;
-}
-
-.unusual {
-  background-color: white;
-  color: #a7a6a8; /* Indigo for Unusual Characteristics */
-  padding: 5px;
-  border-radius: 3px;
-}
+.c1 { background-color: #ff5733; color: white; } /* Red */
+.c2 { background-color: #33ff57; color: white; } /* Green */
+.c3 { background-color: #3357ff; color: white; } /* Blue */
+.c4 { background-color: #ff33a1; color: white; } /* Pink */
+.c5 { background-color: #ff8c33; color: white; } /* Orange */
+.c6 { background-color: #a133ff; color: white; } /* Purple */
+.c7 { background-color: #33fff0; color: white; } /* Cyan */
+.c8 { background-color: #e1ff33; color: black; } /* Yellow */
+.c9 { background-color: #33a1ff; color: white; } /* Sky Blue */
+.c10 { background-color: #ff3333; color: white; } /* Crimson */
 
   /* end of color classes */
-  
-body {
+  /* Apply styles ONLY inside modals */
+.modal-content {
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  background-color: #f9f9f9;
+  color: #2b2828 !important;
+}
+
+.modal-title{
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  background-color: #f9f9f9;
+  color: #2b2828 !important;
+}
+
+/* Ensure all text inside the modal matches */
+.modal-body {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit !important;
+}
+
+/* Ensure list items inside the modal use the correct styling */
+.modal-body ul {
+  padding-left: 20px;
+}
+
+.modal-body ul li {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit !important;
+  list-style-type: disc;
+}
+
+/* Ensure <strong> text inside modal remains styled correctly */
+.modal-body strong {
+  color: inherit !important;
+  font-weight: bold;
+}
+  .modal-text {
     font-family: 'Arial', sans-serif;
     font-size: 16px;
     line-height: 1.6;
     background-color: #f9f9f9;
-    color: #2b2828;
+    color: #2b2828 !important;
     margin: 0;
     padding: 0;
   }
   
+
+
+
+
   /* Container */
   .container {
     max-width: 1200px;
@@ -161,19 +167,7 @@ body {
   color: #fff; /* White text */
 }
 
-  /* Buttons 
-  button, .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: white;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }*/
+
   button:hover, .btn:hover {
     background-color: #0056b3;
   }
@@ -183,7 +177,63 @@ body {
   .btn-secondary:hover {
     background-color: #5a6268;
   }
-  
+  /* Button positions*/
+  .corner-button {
+    position: fixed;
+    top: 10px;  /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000; /* Ensures it's above other elements */
+}
+.top-middle-button {
+  position: fixed;
+  top: 10px;  /* Distance from the top */
+  left: 50%;  /* Move it to the center */
+  transform: translateX(-50%);  /* Center it properly */
+  padding: 12px 24px;
+  font-size: 1.1rem;  /* Slightly bigger text */
+  background-color: #a7330f;
+  color: white !important;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000; /* Ensure it's above other elements */
+  text-align: center;
+}
+.top-middle-button:hover {
+  background-color: #0056b3;  /* Slightly darker blue on hover */
+  color: white !important;  /* Ensures hover state doesn't change color */
+}
+
+.bottom-right-button {
+  position: fixed;
+  bottom: 20px;  /* Distance from the bottom */
+  right: 20px;  /* Distance from the right */
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  background-color: #007bff;  /* Bootstrap blue */
+  color: white !important;  /* Force white text */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000;
+  text-align: center;
+  text-decoration: none;  /* Prevents link-style underlining */
+}
+
+.bottom-right-button:hover {
+  background-color: #0056b3;  /* Slightly darker blue on hover */
+  color: white !important;  /* Ensures hover state doesn't change color */
+}
+
+
+
+
   /* Tables */
   table {
     width: 100%;
@@ -254,10 +304,143 @@ body {
       font-size: 1.75rem;
     }
     h3 {
-      font-size: 1.5rem;
+      font-size: 1.5rem; 
     }
     .container {
       padding: 10px;
     }
   }
   
+  /* Dark Mode */
+.dark-mode {
+  background-color: #181818;
+  color: #e0e0e0;
+}
+
+.dark-mode h1, 
+.dark-mode h2, 
+.dark-mode h3, 
+.dark-mode h4, 
+.dark-mode h5, 
+.dark-mode h6 {
+  color: #dad7d7;
+}
+
+/* Mood Colors */
+.indicative { color: #4dad20 !important; border: 2px solid #4dad20 !important; background: none !important; }
+.subjunctive { color: #4c4ffc !important; border: 2px solid #4c4ffc  !important; background: none !important; }
+.imperative { color: #c20a0a !important; border: 2px solid #c20a0a  !important; background: none !important; }
+
+
+
+.darkmode-sentence {color: #fff; font-size:40px }
+/* Dark Mode Colors */
+.darkmode-c1 { color: #c4755f !important; border: 2px solid #c4755f !important; background: none !important; }
+.darkmode-c2 { color: #63b875 !important; border: 2px solid #63b875 !important; background: none !important; }
+.darkmode-c3 { color: #6686ff !important; border: 2px solid #6686ff !important; background: none !important; }
+.darkmode-c4 { color: #c45296 !important; border: 2px solid #c45296 !important; background: none !important; }
+.darkmode-c5 { color: #2a9dc0 !important; border: 2px solid #2a9dc0 !important; background: none !important; }
+.darkmode-c6 { color: #9c50ce !important; border: 2px solid #9c50ce !important; background: none !important; }
+.darkmode-c7 { color: #66fff0 !important; border: 2px solid #66fff0 !important; background: none !important; }
+.darkmode-c8 { color: #f5ff66 !important; border: 2px solid #f5ff66 !important; background: none !important; }
+.darkmode-c9 { color: #66c2ff !important; border: 2px solid #66c2ff !important; background: none !important; }
+.darkmode-c10 { color: #ff6666 !important; border: 2px solid #ff6666 !important; background: none !important; }
+.darkmode-c11 { color: #ffcc66 !important;  border: 2px solid #ffcc66 !important;  background: none !important; }
+.darkmode-c12 { color: #66ff99 !important;  border: 2px solid #66ff99 !important;  background: none !important; }
+.darkmode-c13 { color: #9966ff !important;  border: 2px solid #9966ff !important;  background: none !important; }
+.darkmode-c14 { color: #ff6699 !important;  border: 2px solid #ff6699 !important;  background: none !important; }
+.darkmode-c15 { color: #66ffcc !important;  border: 2px solid #66ffcc !important;  background: none !important; }
+.darkmode-c16 { color: #ff9966 !important;  border: 2px solid #ff9966 !important;  background: none !important; }
+.darkmode-c17 { color: #33ccff !important;  border: 2px solid #33ccff !important;  background: none !important; }
+.darkmode-c18 { color: #ffcc33 !important;  border: 2px solid #ffcc33 !important;  background: none !important; }
+.darkmode-c19 { color: #ff33cc !important;  border: 2px solid #ff33cc !important;  background: none !important; }
+.darkmode-c20 { color: #99ff33 !important;  border: 2px solid #99ff33 !important;  background: none !important; }
+
+.darkmode-c1:hover { background-color: #c4755f22 !important; } /* Slight transparent fill */
+.darkmode-c2:hover { background-color: #63b87522 !important; }
+.darkmode-c3:hover { background-color: #6686ff22 !important; }
+.darkmode-c4:hover { background-color: #c4529622 !important; }
+.darkmode-c5:hover { background-color: #2a9dc022 !important; }
+.darkmode-c6:hover { background-color: #9c50ce22 !important; }
+.darkmode-c7:hover { background-color: #66fff022 !important; }
+.darkmode-c8:hover { background-color: #f5ff6622 !important; }
+.darkmode-c9:hover { background-color: #66c2ff22 !important; }
+.darkmode-c10:hover { background-color: #ff666622 !important; }
+.darkmode-c11:hover { background-color: #ffcc6622 !important; }
+.darkmode-c12:hover { background-color: #66ff9922 !important; }
+.darkmode-c13:hover { background-color: #9966ff22 !important; }
+.darkmode-c14:hover { background-color: #ff669922 !important; }
+.darkmode-c15:hover { background-color: #66ffcc22 !important; }
+.darkmode-c16:hover { background-color: #ff996622 !important; }
+.darkmode-c17:hover { background-color: #33ccff22 !important; }
+.darkmode-c18:hover { background-color: #ffcc3322 !important; }
+.darkmode-c19:hover { background-color: #ff33cc22 !important; }
+.darkmode-c20:hover { background-color: #99ff3322 !important; }
+
+.dark-mode p, 
+.dark-mode ul li {
+  color: #d0d0d0;
+}
+
+/* Buttons */
+.dark-mode button, 
+.dark-mode .btn {
+  background-color: #444;
+  color: white;
+  border: 1px solid #666;
+}
+
+.dark-mode button:hover, 
+.dark-mode .btn:hover {
+  background-color: #666;
+}
+
+/* Links */
+.dark-mode a {
+  color: #8ab4f8;
+}
+
+.dark-mode a:hover {
+  color: #a5c9ff;
+  text-decoration: underline;
+}
+
+/* Cards */
+.dark-mode .card {
+  background-color: #222;
+  border-color: #444;
+  color: white;
+}
+
+/* Tables */
+.dark-mode table th {
+  background-color: #333;
+  color: white;
+}
+
+.dark-mode table td {
+  background-color: #252525;
+  color: #e0e0e0;
+}
+
+/* Inputs */
+.dark-mode input, 
+.dark-mode textarea, 
+.dark-mode select {
+  background-color: #333;
+  color: white;
+  border: 1px solid #666;
+}
+
+.dark-mode input:focus, 
+.dark-mode textarea:focus, 
+.dark-mode select:focus {
+  border-color: #8ab4f8;
+  box-shadow: 0 0 5px rgba(138, 180, 248, 0.5);
+}
+
+/* Footer */
+.dark-mode footer {
+  background-color: #222;
+  color: white;
+}
