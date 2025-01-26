@@ -135,22 +135,20 @@
     }
 }
 
-
-
 async function checkAnswer(answer) {
     const correct = document.getElementById("correct").value.trim().toLowerCase();
     const mode = new URLSearchParams(window.location.search).get("mode") || "reasoning";
-    const tenseButtonsContainer = document.getElementById("tenseButtonsContainer");
-    const tenseButtons = document.getElementById("tenseButtons");
-    const selectedTenses = JSON.parse(sessionStorage.getItem("selectedTenses") || "[]");
+    const exerciseKey = new URLSearchParams(window.location.search).get("exercise") || "ser_estar";
+    const categoryButtons = document.getElementById("categoryButtons");
+    const feedbackEl = document.getElementById("feedback");
 
     console.log("🔍 Stored correct answer:", correct);
     console.log("🔍 User clicked answer:", answer.trim().toLowerCase());
     console.log("📌 Current Mode:", mode);
-    console.log("📌 Selected Tenses:", selectedTenses);
+    console.log("📌 Selected Exercise:", exerciseKey);
 
-    if (!tenseButtonsContainer) {
-        console.error("❌ ERROR: Tense buttons container is missing.");
+    if (!categoryButtons) {
+        console.error("❌ ERROR: `categoryButtons` div not found!");
         return;
     }
 
@@ -159,37 +157,57 @@ async function checkAnswer(answer) {
 
         if (mode === "reasoning") {
             console.log("🔹 Reasoning Mode: Showing category buttons.");
-            
-            document.getElementById("categoryButtons").style.display = "block";
-            document.getElementById("feedback").innerText = "✅ Correct! Now select the category.";
-            document.getElementById("feedback").className = "feedback correct";
 
-        } else if (mode === "conjugation") {
-            console.log("🔹 Conjugation Mode: Showing tense selection buttons.");
-            
-            // ✅ Ensure container is displayed
-            tenseButtonsContainer.style.display = "block";
-            tenseButtons.innerHTML = ""; // Clear existing buttons
-            
-            generateTenseButtons(selectedTenses); // ✅ Rebuild tense buttons
+            // ✅ Dynamically generate category buttons
+            categoryButtons.innerHTML = ""; // Clear existing buttons
 
-            document.getElementById("feedback").innerText = "✅ Correct! Now select the tense.";
-            document.getElementById("feedback").className = "feedback correct";
+            // ✅ Check if the exercise is preposition-based or verb-based
+            let isPrepositionExercise = exerciseKey === "por_para";
+            
+            if (isPrepositionExercise && categories.preposition_exercises[exerciseKey] && categories.preposition_exercises[exerciseKey][correct]) {
+                categories.preposition_exercises[exerciseKey][correct].forEach(category => {
+                    const button = document.createElement("button");
+                    button.classList.add("btn", "btn-outline-primary", "m-2");
+                    button.innerText = category;
+                    button.onclick = () => checkCategory(category);
+                    categoryButtons.appendChild(button);
+                });
+
+            } else if (!isPrepositionExercise && categories.verb_exercises[exerciseKey] && categories.verb_exercises[exerciseKey][correct]) {
+                categories.verb_exercises[exerciseKey][correct].forEach(category => {
+                    const button = document.createElement("button");
+                    button.classList.add("btn", "btn-outline-primary", "m-2");
+                    button.innerText = category;
+                    button.onclick = () => checkCategory(category);
+                    categoryButtons.appendChild(button);
+                });
+            } else {
+                console.error("❌ ERROR: Categories for this exercise are missing.");
+                return;
+            }
+
+            categoryButtons.style.display = "block"; // ✅ Ensure visibility
+            feedbackEl.innerText = "✅ Correct! Now select the category.";
+            feedbackEl.className = "feedback correct";
+            console.log("📌 Generated category buttons:", categories[exerciseKey][correct]);
+        } else {
+            console.log("🔹 Conjugation Mode: Skipping category selection.");
         }
     } else {
         console.log("❌ Incorrect answer! Fetching new sentence...");
 
-        document.getElementById("categoryButtons").style.display = "none"; 
-        tenseButtonsContainer.style.display = "none"; 
-
-        document.getElementById("feedback").innerText = "❌ Incorrect!";
-        document.getElementById("feedback").className = "feedback incorrect";
+        categoryButtons.style.display = "none"; // ✅ Hide category selection on incorrect answer
+        feedbackEl.innerText = "❌ Incorrect!";
+        feedbackEl.className = "feedback incorrect";
 
         setTimeout(() => {
             fetchSentence();
         }, 1000);
     }
 }
+
+
+
 
 
 
@@ -308,14 +326,20 @@ function generateTenseButtons(tenses) {
 
     <!-- Verb1/Verb2 Answer buttons (Used in BOTH Reasoning & Conjugation) -->
     <div id="verbButtons">
-      <h3>Select the Correct Verb:</h3>
+      <h3>Select the Correct Answer:</h3>
       <div class="buttons">
-        {% for verb in exercise.verbs %}
-          <button class="btn btn-primary btn-lg" onclick="checkAnswer('{{ verb }}')">{{ verb.capitalize() }}</button>
-        {% endfor %}
+        {% if exercise.verbs %}
+          {% for verb in exercise.verbs %}
+            <button class="btn btn-primary btn-lg" onclick="checkAnswer('{{ verb }}')">{{ verb.capitalize() }}</button>
+          {% endfor %}
+          <!--If its a perposition exercise, output preposition buttons-->
+        {% elif exercise.prepositions %}
+          {% for preposition in exercise.prepositions %}
+            <button class="btn btn-primary btn-lg" onclick="checkAnswer('{{ preposition }}')">{{ preposition.capitalize() }}</button>
+          {% endfor %}
+        {% endif %}
       </div>
     </div>
-    
 
 <!-- Sub-buttons for verb1 & verb2 (Only for Reasoning Mode) -->
 <div id="categoryButtons" style="display: none;">

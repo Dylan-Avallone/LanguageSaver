@@ -37,8 +37,16 @@ exercises = {
         "title": "Haber vs. Tener",
         "verbs": ["haber", "tener"],
         "definitions": {
-            "haber": "Haber is used as an auxiliary verb or to express existence.",
-            "tener": "Tener is used to express possession, age, or obligation."
+            "haber": "Haber is used to express past actions or to express existence.",
+            "tener": "Tener is used to express possession, physical sensations, age, or obligation."
+        }
+    },
+    "por_para": {
+       "title": "Por vs. Para",
+        "prepositions": ["por", "para"],
+        "definitions": {
+            "por": "Por is used for cause/reason, duration, movement through a place, exchange, means of transportation, and passive voice agents.",
+            "para": "Para is used for purpose, destination, deadlines, recipients, opinions, and employment."
         }
     }
 }
@@ -75,9 +83,11 @@ def home():
 @app.route("/exercise/<exercise_key>")
 def exercise_page(exercise_key):
     exercise = exercises.get(exercise_key)
+    
     if not exercise:
         return "Exercise not found", 404
-    return render_template("exercise.html", exercise=exercise, exercise_key=exercise_key)
+    
+    return render_template("exercise.html", exercise=exercise, exercise_key=exercise_key, categories=categories)
 
 @app.route("/practice")
 def practice_page():
@@ -122,55 +132,79 @@ MAX_RECENT_VERBS = 3  # Adjust this value to allow variety while avoiding immedi
 
 
 categories = {
-    "ser_estar": {
-        "ser": ["Identity", "Characteristics", "Origin/Nationality", "Time/Date", "Material/Ownership"],
-        "estar": ["Location", "Emotions/Conditions", "Ongoing Actions", "Results of Actions"]
+    "verb_exercises": {
+        "ser_estar": {
+            "ser": ["Identity", "Characteristics", "Origin/Nationality", "Time/Date", "Material/Ownership"],
+            "estar": ["Location", "Emotions/Conditions", "Ongoing Actions", "Results of Actions"]
+        },
+        "haber_tener": {
+            "haber": ["Existence", "Past Actions"],
+            "tener": ["Possession", "Obligation", "Physical Sensations", "Age"]
+        }
     },
-    "haber_tener": {
-        "haber": ["Existence", "Experience"],
-        "tener": ["Possession", "Obligation"]
+   "preposition_exercises": {
+        "por_para": {
+        "por": [
+            "Cause/Reason", 
+            "Means of Communication or Transportation", 
+            "Passing Through a Place", 
+            "Time spent", 
+            "Exchange", 
+            "Who did something"
+        ],
+        "para": [
+            "Purpose/Goal", 
+            "Where something is going", 
+            "Deadline", 
+            "Recipient", 
+            "Opinion/Comparison", 
+            "Who you work for"
+        ]
     }
+ }
 }
 
 
 
 def get_weighted_choice(exercise_key):
     """
-    Dynamically adjust probabilities for verbs in any exercise to ensure balance.
-    If one verb is overused, the probability of choosing the other increases.
+    Dynamically adjust probabilities for words in any exercise to ensure balance.
+    If one word is overused, the probability of choosing the other increases.
     """
 
-    # Retrieve the verbs for the selected exercise
-    verb_pairs = {
+    # ✅ Define word pairs for each exercise type
+    word_pairs = {
         "ser_estar": ["ser", "estar"],
-        "haber_tener": ["haber", "tener"]
+        "haber_tener": ["haber", "tener"],
+        "por_para": ["por", "para"],  
     }
 
-    if exercise_key not in verb_pairs:
+    if exercise_key not in word_pairs:
+        print(f"❌ ERROR: '{exercise_key}' not found in word pairs!")
         return None  # Handle invalid exercises gracefully
 
-    verbs = verb_pairs[exercise_key]
+    words = word_pairs[exercise_key]  # Retrieve the two words for the exercise
 
-    # Initialize counts dynamically if not present
-    for verb in verbs:
-        if verb not in counts:
-            counts[verb] = 0
+    # ✅ Initialize counts dynamically if not present
+    for word in words:
+        if word not in counts:
+            counts[word] = 0
 
-    total = sum(counts[verb] for verb in verbs)
+    total = sum(counts[word] for word in words)
 
     if total == 0:
-        return random.choice(verbs)  # 50/50 at start
+        return random.choice(words)  # 50/50 at start
 
-    # Define sensitivity range for balance correction
+    # ✅ Define sensitivity range for balance correction
     max_diff = 5  # Controls how aggressively balance shifts
-    diff = counts[verbs[0]] - counts[verbs[1]]
+    diff = counts[words[0]] - counts[words[1]]
 
-    # Adjust probability dynamically based on past selections
-    verb_1_prob = max(20, min(80, 50 - (diff / max_diff) * 50))
-    verb_2_prob = 100 - verb_1_prob  # The rest goes to the other verb
+    # ✅ Adjust probability dynamically based on past selections
+    word_1_prob = max(20, min(80, 50 - (diff / max_diff) * 50))
+    word_2_prob = 100 - word_1_prob  # The rest goes to the other word
 
-    print(f"Adjusted probabilities → {verbs[0]}: {verb_1_prob:.2f}%, {verbs[1]}: {verb_2_prob:.2f}%")
-    return random.choices(verbs, weights=[verb_1_prob, verb_2_prob], k=1)[0]
+    print(f"Adjusted probabilities → {words[0]}: {word_1_prob:.2f}%, {words[1]}: {word_2_prob:.2f}%")
+    return random.choices(words, weights=[word_1_prob, word_2_prob], k=1)[0]
 
 
 
@@ -388,70 +422,89 @@ def generate_conjugation_sentence(exercise_key, tenses):
     }
 
 
-
 def generate_reason_sentence(exercise_key):
     """
-    Calls OpenAI to generate a Spanish sentence requiring the correct verb based on the selected exercise.
-    The AI should randomly choose either verb1 or verb2 for the blank, ensuring variety and avoiding duplicates.
+    Calls OpenAI to generate a Spanish sentence requiring the correct word based on the selected exercise.
+    If the exercise is verb-based, it generates a sentence requiring a verb.
+    If the exercise is preposition-based (like Por vs. Para), it generates a sentence requiring one of the two prepositions.
     """
     max_retries = 10
     attempts = 0
 
     global categories, conjugations, generated_sentences, recent_verb_forms
 
-    if exercise_key not in categories:
-        print(f"❌ ERROR: '{exercise_key}' not found in categories!")
+    # ✅ Determine if the exercise is in verb_exercises or preposition_exercises
+    is_verb_exercise = exercise_key in categories["verb_exercises"]
+    is_preposition_exercise = exercise_key in categories["preposition_exercises"]
+
+    if not is_verb_exercise and not is_preposition_exercise:
+        print(f"❌ ERROR: '{exercise_key}' not found in either exercise category!")
         return {"error": "Invalid exercise key"}
 
     while attempts < max_retries:
         try:
             print(f"📌 Generating reasoning sentence for: {exercise_key}")
 
-            # ✅ Randomly pick one verb from the exercise
-            verbs = list(categories[exercise_key].keys())  # e.g., ["ser", "estar"] or ["haber", "tener"]
-            correct_answer = random.choice(verbs)
+            if is_verb_exercise:
+                # ✅ Handle verb-based exercises
+                words = list(categories["verb_exercises"][exercise_key].keys())  # e.g., ["ser", "estar"]
+                correct_answer = random.choice(words)
+                chosen_category = random.choice(categories["verb_exercises"][exercise_key][correct_answer])
+                
+                # ✅ Pick a conjugation for the correct verb
+                available_conjugations = [form for form in conjugations[correct_answer]["present"] if form not in recent_verb_forms]
+                if not available_conjugations:
+                    recent_verb_forms.clear()
+                    available_conjugations = conjugations[correct_answer]["present"]
+                chosen_conjugation = random.choice(available_conjugations)
 
-            # ✅ Select a category based on the chosen verb
-            chosen_category = random.choice(categories[exercise_key][correct_answer])
+                ai_prompt = (
+                    f"Generate a **unique** Spanish sentence with a blank (___) where the correct verb is '{correct_answer}'.\n\n"
+                    "**RULES:**\n"
+                    f"- The sentence **MUST** fit into the category: {chosen_category}.\n"
+                    f"- The blank (___) must be replaced with a conjugated form of '{correct_answer}' matching the subject.\n"
+                    f"- Example conjugations for '{correct_answer}': {', '.join(conjugations[correct_answer]['present'])}\n"
+                    "- Ensure natural variety in conjugations and sentence structures.\n\n"
+                    "**OUTPUT JSON FORMAT:**\n"
+                    "{\n"
+                    f"  \"sentence\": \"Example sentence with a blank ___\",\n"
+                    f"  \"correct\": \"{correct_answer}\",\n"
+                    f"  \"category\": \"{chosen_category}\",\n"
+                    f"  \"verb_form\": \"{chosen_conjugation}\"\n"
+                    "}\n\n"
+                    "**Return only the JSON.**"
+                )
 
-            # ✅ Choose a conjugation from the correct verb's present tense
-            available_conjugations = [form for form in conjugations[correct_answer]["present"] if form not in recent_verb_forms]
+            elif is_preposition_exercise:
+                # ✅ Handle preposition-based exercises
+                words = list(categories["preposition_exercises"][exercise_key].keys())  # e.g., ["por", "para"]
+                correct_answer = random.choice(words)
+                chosen_category = random.choice(categories["preposition_exercises"][exercise_key][correct_answer])
 
-            # ✅ If all conjugations have been used, allow resets (but keep last few)
-            if not available_conjugations:
-                recent_verb_forms.clear()
-                available_conjugations = conjugations[correct_answer]["present"]
+                ai_prompt = (
+                    f"Generate a **unique** Spanish sentence with a blank (___) where the correct preposition is '{correct_answer}'.\n\n"
+                    "**RULES:**\n"
+                    f"- The sentence **MUST** fit into the category: {chosen_category}.\n"
+                    f"- The blank (___) must be replaced with '{correct_answer}' in a way that makes the sentence natural.\n"
+                    f"- Ensure the sentence is a clear example of why '{correct_answer}' is correct.\n\n"
+                    "**OUTPUT JSON FORMAT:**\n"
+                    "{\n"
+                    f"  \"sentence\": \"Example sentence with a blank ___\",\n"
+                    f"  \"correct\": \"{correct_answer}\",\n"
+                    f"  \"category\": \"{chosen_category}\"\n"
+                    "}\n\n"
+                    "**Return only the JSON.**"
+                )
 
-            chosen_conjugation = random.choice(available_conjugations)
-
-            # ✅ Call OpenAI API with the correct format
+            # ✅ Call OpenAI API
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are a Spanish tutor creating unique practice sentences."},
-                    {
-                        "role": "user",
-                        "content": (
-                            f"Generate a **unique** Spanish sentence with a blank (___) where the correct verb is '{correct_answer}'.\n\n"
-                            "**RULES:**\n"
-                            f"- The sentence **MUST** fit into the category: {chosen_category}.\n"
-                            f"- The blank (___) must be replaced with a conjugated form of '{correct_answer}' matching the subject.\n"
-                            f"- The conjugated form **MUST NOT** be a duplicate of recently used conjugations.\n"
-                            f"- Example conjugations for '{correct_answer}': {', '.join(conjugations[correct_answer]['present'])}\n"
-                            "- Ensure natural variety in conjugations and sentence structures.\n\n"
-                            "**OUTPUT JSON FORMAT:**\n"
-                            "{\n"
-                            f"  \"sentence\": \"Example sentence with a blank ___\",\n"
-                            f"  \"correct\": \"{correct_answer}\",\n"
-                            f"  \"category\": \"{chosen_category}\",\n"
-                            f"  \"verb_form\": \"{chosen_conjugation}\"\n"
-                            "}\n\n"
-                            "**Return only the JSON.**"
-                        )
-                    },
+                    {"role": "user", "content": ai_prompt},
                 ],
-                max_tokens=60,  # Allow enough tokens for full JSON response
-                temperature=1.1,  # Adds variety while keeping accuracy
+                max_tokens=60,
+                temperature=1.1,
             )
 
             print("📌 OpenAI raw response:", response)
@@ -461,37 +514,31 @@ def generate_reason_sentence(exercise_key):
 
             # ✅ Validate JSON response before parsing
             if response_content.startswith("```json"):
-                response_content = response_content[7:-3].strip()  # Remove markdown syntax
+                response_content = response_content[7:-3].strip()
 
-            data = json.loads(response_content.replace("'", "\""))  # Convert single quotes to double
+            data = json.loads(response_content.replace("'", "\""))
 
             # ✅ Ensure correct response structure
-            if data["correct"] not in categories[exercise_key]:
-                print(f"❌ AI returned an invalid verb: {data['correct']}. Retrying...")
-                attempts += 1
-                continue
-            if data["category"] not in categories[exercise_key][data["correct"]]:
-                print(f"❌ AI returned an invalid category: {data['category']}. Retrying...")
-                attempts += 1
-                continue
-            if data["verb_form"] in recent_verb_forms:
-                print(f"⚠ Duplicate verb form detected: {data['verb_form']}. Retrying...")
-                attempts += 1
-                continue
+            if is_verb_exercise:
+                if data["correct"] not in categories["verb_exercises"][exercise_key]:
+                    print(f"❌ AI returned an invalid verb: {data['correct']}. Retrying...")
+                    attempts += 1
+                    continue
+
+            elif is_preposition_exercise:
+                if data["correct"] not in categories["preposition_exercises"][exercise_key]:
+                    print(f"❌ AI returned an invalid preposition: {data['correct']}. Retrying...")
+                    attempts += 1
+                    continue
 
             # ✅ Check for duplicate sentences
             if data["sentence"] in generated_sentences:
                 print("⚠ Duplicate sentence detected! Retrying...")
                 attempts += 1
-                continue  # Retry with a new sentence
+                continue  
 
             # ✅ Store unique sentence
             generated_sentences.add(data["sentence"])
-
-            # ✅ Update `recent_verb_forms` with limit
-            recent_verb_forms.add(data["verb_form"])
-            if len(recent_verb_forms) > MAX_RECENT_VERBS:
-                recent_verb_forms.pop()  # Remove oldest form from tracking
 
             return data
 
@@ -504,10 +551,9 @@ def generate_reason_sentence(exercise_key):
 
     print("⚠ Max retries reached. Returning fallback sentence.")
     return {
-        "sentence": "El libro ___ en la mesa.",
-        "correct": "estar",
-        "category": "Location",
-        "verb_form": "está"
+        "sentence": "¿Este regalo es ___ ti?",
+        "correct": "para",
+        "category": "Recipient"
     }
 
 
