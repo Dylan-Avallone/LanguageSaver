@@ -71,6 +71,9 @@
         document.body.classList.add("dark-mode");
     });
  const categories = JSON.parse('{{ categories|safe }}'); // ✅ Convert Flask JSON to JavaScript object
+ window.conjugations = JSON.parse('{{ conjugations|safe }}'); // ✅ Store conjugations globally
+ console.log("📌 Conjugations Loaded:", window.conjugations);
+
 
  async function fetchSentence() {
     try {
@@ -96,8 +99,11 @@
         const feedbackEl = document.getElementById("feedback");
         const categoryButtons = document.getElementById("categoryButtons");
         const tenseButtonsContainer = document.getElementById("tenseButtonsContainer");
+        const subjectPronounEl = document.getElementById("subjectPronoun"); // ✅ New: Store subject pronoun
+        const verbFormEl = document.getElementById("verbForm");
 
-        if (!sentenceEl || !correctEl || !feedbackEl) {
+
+        if (!sentenceEl || !correctEl || !feedbackEl|| !subjectPronounEl) {
             console.error("❌ ERROR: One or more required elements are missing in the DOM.");
             return;
         }
@@ -117,8 +123,29 @@
         }
 
         // ✅ Store correct tense if in conjugation mode
-        if (mode === "conjugation" && correctTenseEl) {
-            correctTenseEl.value = data.tense ? data.tense.trim() : ""; // ✅ Store tense properly
+        else if (mode === "conjugation") {
+            // ✅ Store correct tense if in conjugation mode
+            if (correctTenseEl) {
+                correctTenseEl.value = data.tense ? data.tense.trim() : "";
+            }
+              // ✅ Check if `verb_form` exists and store it
+        if (data.verb_form) {
+            verbFormEl.value = data.verb_form.trim();
+            console.log("✅ Stored verb form:", `"${data.verb_form.trim()}"`);
+        } else {
+            console.error("❌ ERROR: AI response is missing `verb_form`!");
+            verbFormEl.value = "";  // Avoid storing undefined
+        }  
+            // ✅ Store subject pronoun for correct verb form retrieval (ONLY in conjugation mode)
+            if (subjectPronounEl) {
+                if (data.subject_pronoun) {
+                    subjectPronounEl.value = data.subject_pronoun.trim();
+                    console.log(`📌 Stored Subject Pronoun: "${data.subject_pronoun}"`);
+                } else {
+                    console.error("❌ ERROR: Missing subject pronoun from AI response.");
+                    subjectPronounEl.value = "";
+                }
+            }
         }
 
         feedbackEl.innerText = ""; // Clear feedback
@@ -130,6 +157,9 @@
 
         if (tenseButtonsContainer) {
             tenseButtonsContainer.style.display = "none"; // Hide tense buttons on sentence fetch
+        }
+        if (conjugationButtonsContainer) {
+            conjugationButtonsContainer.style.display = "none"; // Hide conjugation buttons on sentence fetch
         }
 
     } catch (error) {
@@ -286,9 +316,6 @@ function checkCategory(category) {
 
 
 
-
-
-
 function checkTense(selectedTense) {
     const correctTenseEl = document.getElementById("correctTense");
     if (!correctTenseEl) {
@@ -296,23 +323,30 @@ function checkTense(selectedTense) {
         return;
     }
 
-    // ✅ Normalize both user-selected and AI-generated tense
     const correctTense = correctTenseEl.value.trim().toLowerCase().replace(/_/g, " ");
-    const userTense = selectedTense.trim().toLowerCase();
+    const userTense = selectedTense.trim().toLowerCase().replace(/_/g, " ");
 
-    console.log("✅ User selected tense:", userTense);
-    console.log("📌 Correct tense from AI:", correctTense);
+    console.log("✅ User selected tense:", `"${userTense}"`);
+    console.log("📌 Correct tense from AI:", `"${correctTense}"`);
 
     if (userTense === correctTense) {
         console.log("🎉 Correct tense selected!");
 
-        document.getElementById("feedback").innerText = "✅ Correct!";
+        document.getElementById("feedback").innerText = "✅ Correct! Now select the correct verb form.";
         document.getElementById("feedback").className = "feedback correct";
 
-        setTimeout(fetchSentence, 1000);
+        // ✅ Retrieve the correct verb from the stored input
+        const correctVerb = document.getElementById("correct").value.trim().toLowerCase();
+
+         // ✅ Store subject pronoun globally
+         window.subjectPronoun = document.getElementById("subjectPronoun").value.trim();
+        console.log("📌 Stored Subject Pronoun:", window.subjectPronoun);
+
+        // ✅ Call function to generate conjugation buttons
+        generateConjugationButtons(correctVerb);
+
     } else {
         console.log("❌ Incorrect tense! Try again.");
-
         document.getElementById("feedback").innerText = "❌ Incorrect! Try again.";
         document.getElementById("feedback").className = "feedback incorrect";
     }
@@ -349,6 +383,125 @@ function generateTenseButtons(tenses) {
     console.log("✅ Generated tense buttons:", tenses);
 }
 
+function generateConjugationButtons(correctVerb) {
+    const conjugationButtonsContainer = document.getElementById("conjugationButtonsContainer");
+    if (!conjugationButtonsContainer) {
+        console.error("❌ ERROR: `conjugationButtonsContainer` div not found.");
+        return;
+    }
+
+    conjugationButtonsContainer.innerHTML = ""; // ✅ Clear previous buttons
+
+    const selectedTenses = JSON.parse(sessionStorage.getItem("selectedTenses") || "[]");
+    console.log("📌 Selected Tenses for Buttons:", selectedTenses);
+
+    if (selectedTenses.length === 0) {
+        console.error("❌ ERROR: No tenses selected.");
+        return;
+    }
+
+    if (!window.conjugations || !window.conjugations[correctVerb]) {
+        console.error(`❌ ERROR: No conjugations found for verb '${correctVerb}'.`);
+        return;
+    }
+
+    if (!window.subjectPronoun) {
+        console.error("❌ ERROR: Subject pronoun is missing!");
+        return;
+    }
+
+    // ✅ Subject Pronoun Map for Indexing into Conjugation Arrays
+    const subjectMap = {
+        "yo": 0, "tú": 1, "usted": 2, "él": 2, "ella": 2, 
+        "nosotros": 3, "nosotras": 3, "vosotros": 4, "vosotras": 4, 
+        "ustedes": 5, "ellos": 5, "ellas": 5
+    };
+
+    const subjectPronoun = window.subjectPronoun.toLowerCase();
+    const subjectIndex = subjectMap[subjectPronoun];
+
+    if (subjectIndex === undefined) {
+        console.error(`❌ ERROR: Subject pronoun '${subjectPronoun}' not recognized.`);
+        return;
+    }
+
+    console.log(`📌 Subject Pronoun: "${subjectPronoun}" → Index: ${subjectIndex}`);
+
+    const colors = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10"];
+    const darkModeColors = ["darkmode-c1", "darkmode-c2", "darkmode-c3", "darkmode-c4", "darkmode-c5",
+                            "darkmode-c6", "darkmode-c7", "darkmode-c8", "darkmode-c9", "darkmode-c10"];
+    const isDarkMode = document.body.classList.contains("dark-mode");
+
+    let buttonData = [];
+
+    // ✅ Extract conjugations & store them with associated colors
+    selectedTenses.forEach((tense, index) => {
+        const formattedTense = tense.toLowerCase().replace(/\s/g, "_");
+
+        if (!window.conjugations[correctVerb][formattedTense]) {
+            console.warn(`⚠ Warning: No conjugations found for '${correctVerb}' in '${formattedTense}'. Skipping...`);
+            return;
+        }
+
+        const verbForm = window.conjugations[correctVerb][formattedTense][subjectIndex];
+
+        if (!verbForm) {
+            console.warn(`⚠ Warning: No conjugation found at index ${subjectIndex} for '${formattedTense}'. Skipping...`);
+            return;
+        }
+
+        const randomColor = isDarkMode
+            ? darkModeColors[Math.floor(Math.random() * darkModeColors.length)]
+            : colors[Math.floor(Math.random() * colors.length)];
+
+        buttonData.push({ verbForm, color: randomColor });
+    });
+
+    // ✅ Shuffle the conjugation buttons so they are randomized
+    buttonData = buttonData.sort(() => Math.random() - 0.5);
+
+    // ✅ Create buttons & append them
+    buttonData.forEach(({ verbForm, color }) => {
+        const button = document.createElement("button");
+        button.classList.add("btn", "conjugation-button", "m-2", color);
+        button.innerText = verbForm;
+        button.onclick = () => checkConjugation(verbForm);
+        conjugationButtonsContainer.appendChild(button);
+    });
+
+    conjugationButtonsContainer.style.display = "block"; // ✅ Show the buttons
+    console.log("✅ Conjugation buttons generated successfully!");
+}
+
+
+
+
+
+function checkConjugation(selectedConjugation) {
+    const correctVerbForm = document.getElementById("verbForm").value.trim().toLowerCase();
+    
+    console.log("✅ User selected conjugation:", `"${selectedConjugation}"`);
+    console.log("📌 Correct conjugation from AI:", `"${correctVerbForm}"`);
+
+    if (selectedConjugation.trim().toLowerCase() === correctVerbForm) {
+        console.log("🎉 Correct conjugation selected!");
+        document.getElementById("feedback").innerText = "✅ Correct!";
+        document.getElementById("feedback").className = "feedback correct";
+        
+        setTimeout(fetchSentence, 1000);
+    } else {
+        console.log("❌ Incorrect conjugation! Try again.");
+        document.getElementById("feedback").innerText = "❌ Incorrect! Try again.";
+        document.getElementById("feedback").className = "feedback incorrect";
+    }
+}
+
+
+
+
+
+
+
 
   </script>
 </head>
@@ -361,6 +514,10 @@ function generateTenseButtons(tenses) {
     <input type="hidden" id="correct" />
 <input type="hidden" id="correctCategory" />
 <input type="hidden" id="correctTense" /> 
+<input type="hidden" id="subjectPronoun" />
+<input type="hidden" id="verbForm" />
+
+
 
     <!-- Verb1/Verb2 Answer buttons (Used in BOTH Reasoning & Conjugation) -->
     <div id="verbButtons">
@@ -401,6 +558,14 @@ function generateTenseButtons(tenses) {
 
     <div id="feedback" class="feedback"></div>
   </div>
+
+ <!-- Conjugation Selection (Appears after selecting the correct tense) -->
+<div id="conjugationButtonsContainer" style="display: none;">
+  <h3>Select the Correct Conjugation:</h3>
+  <div class="button-group mt-3"></div>
+</div>
+
+
   <script>
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);

@@ -113,8 +113,10 @@ def practice_page():
         exercise=exercise,
         exercise_key=exercise_key,
         tenses=tenses,
-        categories=json.dumps(categories)  
+        categories=json.dumps(categories),  
+        conjugations=json.dumps(conjugations)  # Send conjugations to frontend
     )
+
 
 
 
@@ -299,7 +301,7 @@ MAX_RECENT_VERBS = 3  # Prevents immediate repeats but allows variety
 def generate_conjugation_sentence(exercise_key, tenses):
     """
     Calls OpenAI to generate a Spanish sentence requiring a verb from the selected exercise
-    in a user-selected tense. Ensures variety in conjugation forms.
+    in a user-selected tense. Ensures variety in conjugation forms and includes subject pronoun retrieval.
     """
     max_retries = 10
     attempts = 0
@@ -321,8 +323,6 @@ def generate_conjugation_sentence(exercise_key, tenses):
             "present_subjunctive", "past_imperfect_subjunctive", "present_perfect_subjunctive", "past_perfect_subjunctive",
             "affirmative_imperative", "negative_imperative"
         ]
-
-    # ✅ Normalize tenses (ensure consistency with conjugation dictionary)
     tenses = [t.lower().replace(" ", "_") for t in tenses]
 
     while attempts < max_retries:
@@ -330,29 +330,15 @@ def generate_conjugation_sentence(exercise_key, tenses):
             print(f"📌 Generating conjugation sentence for: {exercise_key}")
 
             # ✅ Retrieve the two verbs associated with this exercise
-            words = list(category_data[exercise_key].keys())  # e.g., ["ser", "estar"]
+            words = list(category_data[exercise_key].keys())
             correct_answer = random.choice(words)
-
-            # ✅ Ensure AI selects a valid conjugation
             chosen_tense = random.choice(tenses)
 
             if chosen_tense not in conjugations[correct_answer]:
                 print(f"⚠ Warning: {chosen_tense} not found in conjugations! Defaulting to present.")
                 chosen_tense = "present"
 
-            possible_forms = conjugations[correct_answer][chosen_tense]
-
-            # ✅ Remove recently used verb forms from selection
-            available_conjugations = [form for form in possible_forms if form not in recent_verb_forms]
-
-            # ✅ If all conjugations are removed, reset tracking
-            if not available_conjugations:
-                recent_verb_forms.clear()
-                available_conjugations = possible_forms
-
-            chosen_conjugation = random.choice(available_conjugations)
-
-            # ✅ Call OpenAI API
+            # ✅ Call OpenAI API with subject pronoun requirement
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -362,64 +348,74 @@ def generate_conjugation_sentence(exercise_key, tenses):
                         "content": (
                             f"Generate a **unique** Spanish sentence with a blank (___) where the correct verb is '{correct_answer}'.\n\n"
                             "**RULES:**\n"
-                            f"- The verb **must** be in one of these user-selected tenses: {', '.join(tenses)}.\n"
-                            f"- The blank (___) must be filled with the conjugated form of '{correct_answer}' in the chosen tense: {chosen_tense}.\n"
-                            f"- Ensure proper subject-verb agreement.\n"
-                            f"- Example conjugations for '{correct_answer}' in {chosen_tense}: {', '.join(conjugations[correct_answer][chosen_tense])}.\n"
-                            "- **DO NOT** overuse common forms (e.g., 'es', 'está'). Ensure variety in conjugations.\n\n"
-                            "**OUTPUT JSON FORMAT:**\n"
+                            f"- The verb **must** be in one of these tenses: {', '.join(tenses)}\n"
+                            f"- The blank (___) must be filled with the conjugated form of '{correct_answer}' in the chosen tense: {chosen_tense}\n"
+                            "- Include the explicit subject pronoun (e.g., Yo, Nosotros, Ellos)\n"
+                            "- Ensure proper subject-verb agreement\n"
+                            "- Return JSON with these keys: sentence, correct, tense, verb_form, subject_pronoun\n\n"
+                            "**EXAMPLE:**\n"
                             "{\n"
-                            f"  \"sentence\": \"Example sentence with a blank ___\",\n"
-                            f"  \"correct\": \"{correct_answer}\",\n"
-                            f"  \"tense\": \"{chosen_tense}\",\n"
-                            f"  \"verb_form\": \"{chosen_conjugation}\"\n"
+                            '  "sentence": "Nosotros ___ en la oficina ahora mismo.",\n'
+                            '  "correct": "estar",\n'
+                            '  "tense": "present",\n'
+                            '  "verb_form": "estamos",\n'
+                            '  "subject_pronoun": "Nosotros"\n'
                             "}\n\n"
                             "**Return only the JSON.**"
                         )
                     },
                 ],
-                max_tokens=50,
+                max_tokens=60,
                 temperature=1.1,
             )
 
+            # ✅ Extract response content and handle JSON formatting
             response_content = response["choices"][0]["message"]["content"].strip()
+            if response_content.startswith("```json"):
+                response_content = response_content[7:-3].strip()
+            elif response_content.startswith("```"):
+                response_content = response_content[3:-3].strip()
+
             data = json.loads(response_content.replace("'", "\""))
 
-            # ✅ Ensure AI-generated tense matches a valid one
-            if data["tense"].lower() not in tenses:
-                print(f"❌ AI used an invalid tense: {data['tense']}. Retrying...")
-                attempts += 1
-                continue  
+            # ✅ Ensure AI response includes subject pronoun
+            required_fields = ["sentence", "correct", "tense", "verb_form", "subject_pronoun"]
+            for field in required_fields:
+                if field not in data:
+                    raise ValueError(f"Missing required field: {field}")
 
             # ✅ Prevent duplicate sentences
             if data["sentence"] in generated_sentences:
                 print(f"⚠ Duplicate sentence detected. Retrying...")
                 attempts += 1
-                continue  
+                continue
 
-            # ✅ Store unique sentence
+            # ✅ Track unique sentence
             generated_sentences.add(data["sentence"])
-
-            # ✅ Track recently used verb forms with a limit
-            recent_verb_forms.add(chosen_conjugation)
+            recent_verb_forms.add(data["verb_form"])
             if len(recent_verb_forms) > MAX_RECENT_VERBS:
-                recent_verb_forms.pop()  # Remove the oldest verb form
+                recent_verb_forms.pop()
 
             return data
 
         except json.JSONDecodeError as e:
-            print(f"❌ JSON decode error: {e}. Retrying...")
+            print(f"❌ JSON decode error: {e}\nRaw response: {response_content}")
+            attempts += 1
+        except KeyError as e:
+            print(f"❌ Missing field in response: {e}\nResponse: {response_content}")
             attempts += 1
         except Exception as e:
-            print(f"❌ Error generating sentence: {e}. Retrying...")
+            print(f"❌ Error generating sentence: {str(e)}")
             attempts += 1
 
+    # ✅ Return fallback sentence if AI fails
     print("⚠ Max retries reached. Returning fallback sentence.")
     return {
         "sentence": "Yo ___ feliz.",
         "correct": "estar",
         "tense": "present",
-        "verb_form": "estoy"
+        "verb_form": "estoy",
+        "subject_pronoun": "Yo"
     }
 
 

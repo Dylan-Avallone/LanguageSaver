@@ -229,8 +229,8 @@
         selectedTenses = JSON.parse(selectedTensesElement.value || "[]");
         console.log("📌 Selected Tenses:", selectedTenses);
 
-        if (selectedTenses.length === 0) {
-            alert("Please select at least one tense before starting practice.");
+        if (selectedTenses.length <= 1) {
+            alert("Please select at least two tenses before starting practice.");
             return;
         }
 
@@ -470,13 +470,18 @@ const EXPLANATIONS = {
 
         // Hide mood/tenses UI
         document.getElementById("mood-buttons").style.display = "none";
+       
+
     } else if (mode === "conjugation" && states.notSure === false) {
         conjugationBtn.classList.add("highlighted");
         reasoningBtn.classList.remove("highlighted");
 
         // Show mood/tenses UI
         document.getElementById("mood-buttons").style.display = "block";
+        
+
     }
+    
 }
 
 function selectMood(mood) {
