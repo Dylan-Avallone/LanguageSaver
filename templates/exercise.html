@@ -35,8 +35,8 @@
 {% if exercise_key == "ser_estar" %}
     <h1 class="text-center">{{ exercise.title }}</h1>
 
-    <div class="mt-4">
-      <h3 style="font-size: 50px;">Definitions</h3>
+    <div class="text-center">
+      <h3 style="font-size: 30px; color:rgb(255, 255, 255)">Definitions</h3>
       <ul>
         <li style="font-size: 28px;">Same Word, Different Meanings</li>
         <li style="font-size: 22px;">
@@ -87,8 +87,8 @@
   {% elif exercise_key == "haber_tener" %}
   <h1 class="text-center">{{ exercise.title }}</h1>
 
-  <div class="mt-4">
-      <h3 style="font-size: 50px;">Definitions</h3>
+  <div class="text-center">
+      <h3 style="font-size: 30px;">Definitions</h3>
       <ul>
           <li style="font-size: 22px;">
               In Spanish, both <strong>haber</strong> and <strong>tener</strong> mean 'To Have' in English. 
@@ -130,11 +130,165 @@
             </div>
         </div>
     </div>
+    {% elif exercise_key == "ir_venir" %}
+    <h1 class="text-center">{{ exercise.title }}</h1>
+
+    <div class="text-center">
+      <h3 style="font-size: 30px;">Definitions</h3>
+      <ul>
+        <li style="font-size: 28px;">Same Word, Different Meanings</li>
+        <li style="font-size: 22px;">
+          In English, we use <strong>"to go"</strong> and <strong>"to come"</strong> to indicate movement:
+          But in Spanish, you must choose <strong>ir</strong> or <strong>venir</strong> based on the
+          <button type="button" class="btn darkmode-c3" data-bs-toggle="modal" data-bs-target="#situationModal" style="text-decoration: underline; font-size: 22px; color: #007bff; position: relative; top: -6px;">
+            <strong>situation</strong>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+   <!-- Situation Modal for Ir vs. Venir -->
+<div class="modal fade" id="situationModal" tabindex="-1" aria-labelledby="situationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <h5 class="modal-title text-center p-3" id="situationModalLabel">Explanation</h5>
+          <div class="modal-body text-center">
+              <div class="row">
+                  <!-- Left Column for Ir -->
+                  <div class="col-md-6">
+                      <strong class="modal-text">Ir (Movement Away from the Speaker)</strong>
+                      <ul>
+                          <li><strong class="modal-text">Movement to a Destination</strong>: Voy al parque. (I am going to the park.)</li>
+                          <li><strong class="modal-text">Future Plans</strong>: Voy a estudiar. (I am going to study.)</li>
+                          <li><strong class="modal-text">Transportation Method</strong>: Vamos en coche. (We are going by car.)</li>
+                          <li><strong class="modal-text">Giving Instructions</strong>: Ve por el pan. (Go get the bread.)</li>
+                          <li><strong class="modal-text">State Progression (Idiomatic)</strong>: La situación va mejorando. (The situation is getting better.)</li>
+                      </ul>
+                  </div>
+
+                  <!-- Right Column for Venir -->
+                  <div class="col-md-6">
+                      <strong class="modal-text">Venir (Movement Toward the Speaker)</strong>
+                      <ul>
+                          <li><strong class="modal-text">Arrival or Returning</strong>: Mis padres vienen mañana. (My parents are coming tomorrow.)</li>
+                          <li><strong class="modal-text">Bringing Someone or Something</strong>: ¿Vienes con tu hermano? (Are you coming with your brother?)</li>
+                          <li><strong class="modal-text">Recent Past ("Venir de")</strong>: Vengo de comprar pan. (I just bought bread.)</li>
+                          <li><strong class="modal-text">Consequence or Reaction (Idiomatic)</strong>: Me viene bien la reunión a las 5. (The meeting at 5 works well for me.)</li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+          <button class="btn btn-secondary mx-auto w-50 mb-3" data-bs-dismiss="modal">Close</button>
+      </div>
+  </div>
+</div>
+
+  <!-- Ensure content only appears for Saber vs. Conocer -->
+{% elif exercise_key == "saber_conocer" %}
+<h1 class="text-center">{{ exercise.title }}</h1>
+
+<div class="text-center">
+  <h3 style="font-size: 30px;">Definitions</h3>
+  <ul>
+    <li style="font-size: 28px;">Same Word, Different Meanings</li>
+    <li style="font-size: 22px;">
+      In English, we use <strong>"to know"</strong> for everything:
+      But in Spanish, you must choose <strong>saber</strong> or <strong>conocer</strong> based on the
+      <button type="button" class="btn darkmode-c3" data-bs-toggle="modal" data-bs-target="#situationModal" style="text-decoration: underline; font-size: 22px; color: #007bff; position: relative; top: -6px;">
+        <strong>situation</strong>
+      </button>
+    </li>
+  </ul>
+</div>
+
+<!-- Situation Modal for Saber vs. Conocer -->
+<div class="modal fade" id="situationModal" tabindex="-1" aria-labelledby="situationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <h5 class="modal-title text-center p-3" id="situationModalLabel">Explanation</h5>
+          <div class="modal-body text-center">
+              <div class="row">
+                  <!-- Left Column for Saber -->
+                  <div class="col-md-6">
+                      <strong class="modal-text">Saber (Knowledge of Facts or Abilities)</strong>
+                      <ul>
+                          <li><strong class="modal-text">Facts/Information</strong>: Sé que Madrid es la capital. (I know that Madrid is the capital.)</li>
+                          <li><strong class="modal-text">Skills/Abilities</strong>: Sé nadar. (I know how to swim.)</li>
+                      </ul>
+                  </div>
+
+                  <!-- Right Column for Conocer -->
+                  <div class="col-md-6">
+                      <strong class="modal-text">Conocer (Familiarity with People or Things)</strong>
+                      <ul>
+                          <li><strong class="modal-text">Being Familiar with Someone/Something</strong>: Conozco a María. (I know María.)</li>
+                          <li><strong class="modal-text">Meeting Someone for the First Time</strong>: Hoy conocí a mi nuevo profesor. (I met my new teacher today.)</li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+          <button class="btn btn-secondary mx-auto w-50 mb-3" data-bs-dismiss="modal">Close</button>
+      </div>
+  </div>
+</div>
+<!-- Ensure content only appears for Llevar vs. Traer -->
+{% elif exercise_key == "llevar_traer" %}
+    <h1 class="text-center">{{ exercise.title }}</h1>
+
+    <div class="text-center">
+      <h3 style="font-size: 30px;">Definitions</h3>
+      <ul>
+        <li style="font-size: 28px;">Same Word, Different Meanings</li>
+        <li style="font-size: 22px;">
+          In English, we often use <strong>"to bring"</strong> for both actions:
+          But in Spanish, you must choose <strong>llevar</strong> or <strong>traer</strong> based on the
+          <button type="button" class="btn darkmode-c3" data-bs-toggle="modal" data-bs-target="#situationModal" style="text-decoration: underline; font-size: 22px; color: #007bff; position: relative; top: -6px;">
+            <strong>situation</strong>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+   <!-- Situation Modal for Llevar vs. Traer -->
+<div class="modal fade" id="situationModal" tabindex="-1" aria-labelledby="situationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <h5 class="modal-title text-center p-3" id="situationModalLabel">Explanation</h5>
+          <div class="modal-body text-center">
+              <div class="row">
+                  <!-- Left Column for Llevar -->
+                  <div class="col-md-6">
+                      <strong class="modal-text">Llevar (Taking Away, Moving Something Elsewhere)</strong>
+                      <ul>
+                          <li><strong class="modal-text">Transporting People or Objects</strong>: Llevo a mis hijos al colegio. (I take my kids to school.)</li>
+                          <li><strong class="modal-text">Wearing Clothes or Accessories</strong>: Hoy llevo un abrigo porque hace frío. (Today I’m wearing a coat because it’s cold.)</li>
+                          <li><strong class="modal-text">Leading or Guiding Someone</strong>: El guía nos llevó a un restaurante famoso. (The guide took us to a famous restaurant.)</li>
+                          <li><strong class="modal-text">Expressing Duration of Time</strong>: Llevo cinco años viviendo aquí. (I have been living here for five years.)</li>
+                      </ul>
+                  </div>
+
+                  <!-- Right Column for Traer -->
+                  <div class="col-md-6">
+                      <strong class="modal-text">Traer (Bringing Toward the Speaker)</strong>
+                      <ul>
+                          <li><strong class="modal-text">Bringing Something Closer</strong>: ¿Me traes un vaso de agua? (Can you bring me a glass of water?)</li>
+                          <li><strong class="modal-text">Fetching or Retrieving</strong>: Voy a traer mi bolso del coche. (I’m going to get my bag from the car.)</li>
+                          <li><strong class="modal-text">Attracting or Causing Something</strong>: Este trabajo me ha traído muchas oportunidades. (This job has brought me many opportunities.)</li>
+                          <li><strong class="modal-text">Bringing Someone Along</strong>: ¿Puedo traer a mi prima a la fiesta? (Can I bring my cousin to the party?)</li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+          <button class="btn btn-secondary mx-auto w-50 mb-3" data-bs-dismiss="modal">Close</button>
+      </div>
+  </div>
+</div>
+
     {% elif exercise_key == "por_para" %}
     <h1 class="text-center">{{ exercise.title }}</h1>
   
-    <div class="mt-4">
-        <h3 style="font-size: 50px;">Definitions</h3>
+    <div class="text-center">
+        <h3 style="font-size: 30px;">Definitions</h3>
         <ul>
             <li style="font-size: 22px;">
                 In Spanish, both <strong>por</strong> and <strong>para</strong> translate to "for," but they have different meanings 
@@ -145,7 +299,7 @@
                 </button>
             </li>
             <li style="font-size: 22px;">
-             For this exercise there wont be conjugation practice as these are prepositions. You will need to focus on your reasoning as there are many use cases for <strong>por</strong> and <strong>para</strong>. 
+             For this exercise there wont be conjugation practice as these are prepositions. You will need to focus on your reasoning, there are many use cases for <strong>por</strong> and <strong>para</strong>. 
              
           </li>
         </ul>
@@ -648,14 +802,7 @@ function handleTopLevelButtonClick(button, name) {
         showModal(name);
         return;
     }
-    if (states.notSure) {
-        console.log(`🟡 'Not Sure?' is TRUE. Showing msadasdasds for ${name}...`);
-        lastTargetButton = button;  // Store button reference for later activation
-        // Store which mode to activate
 
-        showModal(name);
-        return;
-    }
 
     // 3. Otherwise, activate the mode directly
     console.log(`✅ Activating ${name} directly.`);
@@ -811,7 +958,7 @@ function showModal(name, callback = null) {
       //for conjugations
         modalBody.textContent = 
             "- Conjugation mode focuses on practicing different verb tenses.\n" +
-            "- You'll need to select the correct tense of the verb in the blank.";
+            "- You'll need to select the correct tense and conjugation of the verb in the blank.";
     } else if (name === "Tenses") {
        // For Moods/Tenses
        modalBody.textContent = `Explanation for ${name} (${type}). This is when and how it is used.`;

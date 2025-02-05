@@ -410,22 +410,20 @@ function generateConjugationButtons(correctVerb) {
         return;
     }
 
-    // ✅ Subject Pronoun Map for Indexing into Conjugation Arrays
-    const subjectMap = {
+    // ✅ **Standard Subject Map (For All Non-Imperative Tenses)**
+    const standardSubjectMap = {
         "yo": 0, "tú": 1, "usted": 2, "él": 2, "ella": 2, 
         "nosotros": 3, "nosotras": 3, "vosotros": 4, "vosotras": 4, 
         "ustedes": 5, "ellos": 5, "ellas": 5
     };
 
+    // ✅ **Imperative Subject Map (No "Yo" Form)**
+    const imperativeSubjectMap = {
+        "tú": 0, "usted": 1, "nosotros": 2, "vosotros": 3, "ustedes": 4  
+    };
+
     const subjectPronoun = window.subjectPronoun.toLowerCase();
-    const subjectIndex = subjectMap[subjectPronoun];
-
-    if (subjectIndex === undefined) {
-        console.error(`❌ ERROR: Subject pronoun '${subjectPronoun}' not recognized.`);
-        return;
-    }
-
-    console.log(`📌 Subject Pronoun: "${subjectPronoun}" → Index: ${subjectIndex}`);
+    console.log(`📌 Subject Pronoun: "${subjectPronoun}"`);
 
     const colors = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10"];
     const darkModeColors = ["darkmode-c1", "darkmode-c2", "darkmode-c3", "darkmode-c4", "darkmode-c5",
@@ -443,8 +441,21 @@ function generateConjugationButtons(correctVerb) {
             return;
         }
 
-        const verbForm = window.conjugations[correctVerb][formattedTense][subjectIndex];
+        // ✅ Check if the tense is **Affirmative or Negative Imperative**
+        const isImperative = formattedTense === "affirmative_imperative" || formattedTense === "negative_imperative";
 
+        // ✅ Select the correct subject map
+        const subjectIndex = isImperative ? imperativeSubjectMap[subjectPronoun] : standardSubjectMap[subjectPronoun];
+
+        if (subjectIndex === undefined) {
+            console.error(`❌ ERROR: Subject pronoun '${subjectPronoun}' not recognized for ${formattedTense}.`);
+            return;
+        }
+
+        console.log(`📌 Subject Pronoun: "${subjectPronoun}" → Index: ${subjectIndex} (Using ${isImperative ? "Imperative Map" : "Standard Map"})`);
+
+        const verbForm = window.conjugations[correctVerb][formattedTense][subjectIndex];
+      
         if (!verbForm) {
             console.warn(`⚠ Warning: No conjugation found at index ${subjectIndex} for '${formattedTense}'. Skipping...`);
             return;
@@ -457,10 +468,41 @@ function generateConjugationButtons(correctVerb) {
         buttonData.push({ verbForm, color: randomColor });
     });
 
-    // ✅ Shuffle the conjugation buttons so they are randomized
+    // ✅ **Step 1: If less than 4 buttons, fill with extra tenses**
+    if (buttonData.length < 4) {
+        console.warn(`⚠ Warning: Only ${buttonData.length} buttons generated. Adding more to reach 4.`);
+
+        // ✅ Find additional tenses not selected by the user
+        const allAvailableTenses = Object.keys(window.conjugations[correctVerb]);
+        const missingTenses = allAvailableTenses.filter(t => !selectedTenses.includes(t));
+
+        // ✅ Shuffle and select enough missing tenses to reach 4 total buttons
+        while (buttonData.length < 4 && missingTenses.length > 0) {
+            const randomTenseIndex = Math.floor(Math.random() * missingTenses.length);
+            const randomTense = missingTenses.splice(randomTenseIndex, 1)[0];
+
+            if (!window.conjugations[correctVerb][randomTense]) continue;
+
+            const isImperative = randomTense === "affirmative_imperative" || randomTense === "negative_imperative";
+            const subjectIndex = isImperative ? imperativeSubjectMap[subjectPronoun] : standardSubjectMap[subjectPronoun];
+
+            if (subjectIndex === undefined) continue;
+
+            const verbForm = window.conjugations[correctVerb][randomTense][subjectIndex];
+            if (!verbForm) continue;
+
+            const randomColor = isDarkMode
+                ? darkModeColors[Math.floor(Math.random() * darkModeColors.length)]
+                : colors[Math.floor(Math.random() * colors.length)];
+
+            buttonData.push({ verbForm, color: randomColor });
+        }
+    }
+
+    // ✅ **Step 2: Shuffle the conjugation buttons so they are randomized**
     buttonData = buttonData.sort(() => Math.random() - 0.5);
 
-    // ✅ Create buttons & append them
+    // ✅ **Step 3: Create buttons & append them**
     buttonData.forEach(({ verbForm, color }) => {
         const button = document.createElement("button");
         button.classList.add("btn", "conjugation-button", "m-2", color);

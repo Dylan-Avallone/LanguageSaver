@@ -30,8 +30,9 @@ exercises = {
         "verbs": ["ser", "estar"],
         "definitions": {
             "ser": "Ser is used to describe identity, permanent states, or inherent characteristics.",
-            "estar": "Estar is used to describe temporary states, emotions, or locations."
-        }
+            "estar": "Estar is used to describe temporary states, emotions, or locations."          
+        },
+         "summary":  "Confusion with Ser/Estar both meaning 'to be' but used for different purposes."
     },
     "haber_tener": {
         "title": "Haber vs. Tener",
@@ -39,16 +40,49 @@ exercises = {
         "definitions": {
             "haber": "Haber is used to express past actions or to express existence.",
             "tener": "Tener is used to express possession, physical sensations, age, or obligation."
-        }
+        },
+        "summary":  "Confusion with Haber/Tener both involving possession or existence but used in different contexts." 
     },
     "por_para": {
-       "title": "Por vs. Para",
+        "title": "Por vs. Para",
         "prepositions": ["por", "para"],
         "definitions": {
             "por": "Por is used for cause/reason, duration, movement through a place, exchange, means of transportation, and passive voice agents.",
             "para": "Para is used for purpose, destination, deadlines, recipients, opinions, and employment."
-        }
-    }
+         },
+         "summary":  "Confusion with Por/Para both meaning 'for' but used for different purposes."
+         
+    },
+    "ir_venir": {
+        "title": "Ir vs. Venir",
+        "verbs": ["ir", "venir"],
+        "definitions": {
+            "ir": "Ir is used for movement away from the speaker or future plans.",
+            "venir": "Venir is used for movement toward the speaker or arrival."
+        },
+        "summary":  "Confusion with Ir/Venir both describing movement but in different directions."
+     },
+    "saber_conocer": {
+        "title": "Saber vs. Conocer",
+        "verbs": ["saber", "conocer"],
+        "definitions": {
+            "saber": "Saber is used to express knowledge of facts, information, or abilities.",
+            "conocer": "Conocer is used to express familiarity with people, places, or things, or meeting someone for the first time."
+        },
+        "summary":   "Confusion with Saber/Conocer both meaning 'to know.' but used for different purposes."
+    },
+    "llevar_traer": {
+    "title": "Llevar vs. Traer",
+    "verbs": ["llevar", "traer"],
+    "definitions": {
+        "llevar": "Llevar is used when taking something away from the speaker’s location or transporting it somewhere else.",
+        "traer": "Traer is used when bringing something toward the speaker’s location or requesting someone to bring something."
+     },
+    "summary":  "Confusion with Llevar/Traer both meaning 'to bring/carry' but with different directions."
+   
+    },
+
+    
 }
 
 
@@ -142,8 +176,24 @@ categories = {
         "haber_tener": {
             "haber": ["Existence", "Past Actions"],
             "tener": ["Possession", "Obligation", "Physical Sensations", "Age"]
-        }
+        },
+        "ir_venir": {
+            "ir": ["Movement Away from the Speaker", "Future Plans"],
+            "venir": ["Movement Toward the Speaker", "Arrival", "Invitation"]
+        },
+        "saber_conocer": {
+            "saber": ["Facts/Information", "Skills/Abilities"],
+            "conocer": ["Being Familiar with Someone/Something", "Meeting Someone for the First Time"]
+        },
+        "llevar_traer": {
+            "llevar": ["Taking Something Away", "Wearing Clothes or Accessories", "Transporting People or Objects", "Leading or Guiding Someone", "Expressing Duration of Time"],
+            "traer": ["Bringing Something Toward", "Fetching or Retrieving", "Requesting or Receiving an Object", "Attracting or Causing Something", "Bringing Someone Along"]
+        },
+
+
+        
     },
+    
    "preposition_exercises": {
         "por_para": {
         "por": [
@@ -265,7 +315,7 @@ conjugations = {
         "present_perfect_subjunctive": ["haya habido", "hayas habido", "haya habido", "hayamos habido", "hayáis habido", "hayan habido"],
         "past_perfect_subjunctive": ["hubiera habido", "hubieras habido", "hubiera habido", "hubiéramos habido", "hubierais habido", "hubieran habido"],
 
-        # No imperative forms for "haber" (only used as an auxiliary verb)
+        # No imperative forms for "haber" 
     },
     "tener": {
         # Indicative
@@ -286,7 +336,133 @@ conjugations = {
         # Imperative
         "affirmative_imperative": ["ten", "tenga", "tengamos", "tened", "tengan"],
         "negative_imperative": ["no tengas", "no tenga", "no tengamos", "no tengáis", "no tengan"]
-    }
+    },
+    "ir": {
+        # Indicative
+        "present": ["voy", "vas", "va", "vamos", "vais", "van"],
+        "past_imperfect": ["iba", "ibas", "iba", "íbamos", "ibais", "iban"],
+        "future": ["iré", "irás", "irá", "iremos", "iréis", "irán"],
+        "conditional": ["iría", "irías", "iría", "iríamos", "iríais", "irían"],
+        "present_perfect": ["he ido", "has ido", "ha ido", "hemos ido", "habéis ido", "han ido"],
+        "past_perfect": ["había ido", "habías ido", "había ido", "habíamos ido", "habíais ido", "habían ido"],
+        "future_perfect": ["habré ido", "habrás ido", "habrá ido", "habremos ido", "habréis ido", "habrán ido"],
+        
+        # Subjunctive
+        "present_subjunctive": ["vaya", "vayas", "vaya", "vayamos", "vayáis", "vayan"],
+        "past_imperfect_subjunctive": ["fuera", "fueras", "fuera", "fuéramos", "fuerais", "fueran"],
+        "present_perfect_subjunctive": ["haya ido", "hayas ido", "haya ido", "hayamos ido", "hayáis ido", "hayan ido"],
+        "past_perfect_subjunctive": ["hubiera ido", "hubieras ido", "hubiera ido", "hubiéramos ido", "hubierais ido", "hubieran ido"],
+        
+        # Imperative
+        "affirmative_imperative": ["ve", "vaya", "vayamos", "id", "vayan"],
+        "negative_imperative": ["no vayas", "no vaya", "no vayamos", "no vayáis", "no vayan"]
+    },
+    "venir": {
+        # Indicative
+        "present": ["vengo", "vienes", "viene", "venimos", "venís", "vienen"],
+        "past_imperfect": ["venía", "venías", "venía", "veníamos", "veníais", "venían"],
+        "future": ["vendré", "vendrás", "vendrá", "vendremos", "vendréis", "vendrán"],
+        "conditional": ["vendría", "vendrías", "vendría", "vendríamos", "vendríais", "vendrían"],
+        "present_perfect": ["he venido", "has venido", "ha venido", "hemos venido", "habéis venido", "han venido"],
+        "past_perfect": ["había venido", "habías venido", "había venido", "habíamos venido", "habíais venido", "habían venido"],
+        "future_perfect": ["habré venido", "habrás venido", "habrá venido", "habremos venido", "habréis venido", "habrán venido"],
+
+        # Subjunctive
+        "present_subjunctive": ["venga", "vengas", "venga", "vengamos", "vengáis", "vengan"],
+        "past_imperfect_subjunctive": ["viniera", "vinieras", "viniera", "viniéramos", "vinierais", "vinieran"],
+        "present_perfect_subjunctive": ["haya venido", "hayas venido", "haya venido", "hayamos venido", "hayáis venido", "hayan venido"],
+        "past_perfect_subjunctive": ["hubiera venido", "hubieras venido", "hubiera venido", "hubiéramos venido", "hubierais venido", "hubieran venido"],
+
+        # Imperative
+        "affirmative_imperative": ["ven", "venga", "vengamos", "venid", "vengan"],
+        "negative_imperative": ["no vengas", "no venga", "no vengamos", "no vengáis", "no vengan"]
+    },
+    "saber": {
+        # Indicative
+        "present": ["sé", "sabes", "sabe", "sabemos", "sabéis", "saben"],
+        "past_imperfect": ["sabía", "sabías", "sabía", "sabíamos", "sabíais", "sabían"],
+        "future": ["sabré", "sabrás", "sabrá", "sabremos", "sabréis", "sabrán"],
+        "conditional": ["sabría", "sabrías", "sabría", "sabríamos", "sabríais", "sabrían"],
+        "present_perfect": ["he sabido", "has sabido", "ha sabido", "hemos sabido", "habéis sabido", "han sabido"],
+        "past_perfect": ["había sabido", "habías sabido", "había sabido", "habíamos sabido", "habíais sabido", "habían sabido"],
+        "future_perfect": ["habré sabido", "habrás sabido", "habrá sabido", "habremos sabido", "habréis sabido", "habrán sabido"],
+
+        # Subjunctive
+        "present_subjunctive": ["sepa", "sepas", "sepa", "sepamos", "sepáis", "sepan"],
+        "past_imperfect_subjunctive": ["supiera", "supieras", "supiera", "supiéramos", "supierais", "supieran"],
+        "present_perfect_subjunctive": ["haya sabido", "hayas sabido", "haya sabido", "hayamos sabido", "hayáis sabido", "hayan sabido"],
+        "past_perfect_subjunctive": ["hubiera sabido", "hubieras sabido", "hubiera sabido", "hubiéramos sabido", "hubierais sabido", "hubieran sabido"],
+
+        # Imperative
+        "affirmative_imperative": ["sabe", "sepa", "sepamos", "sabed", "sepan"],
+        "negative_imperative": ["no sepas", "no sepa", "no sepamos", "no sepáis", "no sepan"]
+    },
+    "conocer": {
+        # Indicative
+        "present": ["conozco", "conoces", "conoce", "conocemos", "conocéis", "conocen"],
+        "past_imperfect": ["conocía", "conocías", "conocía", "conocíamos", "conocíais", "conocían"],
+        "future": ["conoceré", "conocerás", "conocerá", "conoceremos", "conoceréis", "conocerán"],
+        "conditional": ["conocería", "conocerías", "conocería", "conoceríamos", "conoceríais", "conocerían"],
+        "present_perfect": ["he conocido", "has conocido", "ha conocido", "hemos conocido", "habéis conocido", "han conocido"],
+        "past_perfect": ["había conocido", "habías conocido", "había conocido", "habíamos conocido", "habíais conocido", "habían conocido"],
+        "future_perfect": ["habré conocido", "habrás conocido", "habrá conocido", "habremos conocido", "habréis conocido", "habrán conocido"],
+
+        # Subjunctive
+        "present_subjunctive": ["conozca", "conozcas", "conozca", "conozcamos", "conozcáis", "conozcan"],
+        "past_imperfect_subjunctive": ["conociera", "conocieras", "conociera", "conociéramos", "conocierais", "conocieran"],
+        "present_perfect_subjunctive": ["haya conocido", "hayas conocido", "haya conocido", "hayamos conocido", "hayáis conocido", "hayan conocido"],
+        "past_perfect_subjunctive": ["hubiera conocido", "hubieras conocido", "hubiera conocido", "hubiéramos conocido", "hubierais conocido", "hubieran conocido"],
+
+        # Imperative
+        "affirmative_imperative": ["conoce", "conozca", "conozcamos", "conoced", "conozcan"],
+        "negative_imperative": ["no conozcas", "no conozca", "no conozcamos", "no conozcáis", "no conozcan"]
+    },
+    "llevar": {
+        # Indicative
+        "present": ["llevo", "llevas", "lleva", "llevamos", "lleváis", "llevan"],
+        "past_imperfect": ["llevaba", "llevabas", "llevaba", "llevábamos", "llevabais", "llevaban"],
+        "future": ["llevaré", "llevarás", "llevará", "llevaremos", "llevaréis", "llevarán"],
+        "conditional": ["llevaría", "llevarías", "llevaría", "llevaríamos", "llevaríais", "llevarían"],
+        "present_perfect": ["he llevado", "has llevado", "ha llevado", "hemos llevado", "habéis llevado", "han llevado"],
+        "past_perfect": ["había llevado", "habías llevado", "había llevado", "habíamos llevado", "habíais llevado", "habían llevado"],
+        "future_perfect": ["habré llevado", "habrás llevado", "habrá llevado", "habremos llevado", "habréis llevado", "habrán llevado"],
+
+        # Subjunctive
+        "present_subjunctive": ["lleve", "lleves", "lleve", "llevemos", "llevéis", "lleven"],
+        "past_imperfect_subjunctive": ["llevara", "llevaras", "llevara", "lleváramos", "llevarais", "llevaran"],
+        "present_perfect_subjunctive": ["haya llevado", "hayas llevado", "haya llevado", "hayamos llevado", "hayáis llevado", "hayan llevado"],
+        "past_perfect_subjunctive": ["hubiera llevado", "hubieras llevado", "hubiera llevado", "hubiéramos llevado", "hubierais llevado", "hubieran llevado"],
+
+        # Imperative
+        "affirmative_imperative": ["lleva", "lleve", "llevemos", "llevad", "lleven"],
+        "negative_imperative": ["no lleves", "no lleve", "no llevemos", "no llevéis", "no lleven"]
+        },
+    "traer": {
+        # Indicative
+        "present": ["traigo", "traes", "trae", "traemos", "traéis", "traen"],
+        "past_imperfect": ["traía", "traías", "traía", "traíamos", "traíais", "traían"],
+        "future": ["traeré", "traerás", "traerá", "traeremos", "traeréis", "traerán"],
+        "conditional": ["traería", "traerías", "traería", "traeríamos", "traeríais", "traerían"],
+        "present_perfect": ["he traído", "has traído", "ha traído", "hemos traído", "habéis traído", "han traído"],
+        "past_perfect": ["había traído", "habías traído", "había traído", "habíamos traído", "habíais traído", "habían traído"],
+        "future_perfect": ["habré traído", "habrás traído", "habrá traído", "habremos traído", "habréis traído", "habrán traído"],
+
+        # Subjunctive
+        "present_subjunctive": ["traiga", "traigas", "traiga", "traigamos", "traigáis", "traigan"],
+        "past_imperfect_subjunctive": ["trajera", "trajeras", "trajera", "trajéramos", "trajerais", "trajeran"],
+        "present_perfect_subjunctive": ["haya traído", "hayas traído", "haya traído", "hayamos traído", "hayáis traído", "hayan traído"],
+        "past_perfect_subjunctive": ["hubiera traído", "hubieras traído", "hubiera traído", "hubiéramos traído", "hubierais traído", "hubieran traído"],
+
+        # Imperative
+        "affirmative_imperative": ["trae", "traiga", "traigamos", "traed", "traigan"],
+        "negative_imperative": ["no traigas", "no traiga", "no traigamos", "no traigáis", "no traigan"]
+    },
+
+
+
+
+
+
 }
 
 
@@ -315,15 +491,21 @@ def generate_conjugation_sentence(exercise_key, tenses):
         print(f"❌ ERROR: '{exercise_key}' not found in verb exercises!")
         return {"error": "Invalid exercise key"}
 
-    # ✅ If no tenses are provided, fallback to all tenses
-    if not tenses:
-        tenses = [
-            "present", "past_imperfect", "future", "conditional",
-            "present_perfect", "past_perfect", "future_perfect",
-            "present_subjunctive", "past_imperfect_subjunctive", "present_perfect_subjunctive", "past_perfect_subjunctive",
-            "affirmative_imperative", "negative_imperative"
-        ]
+    # ✅ Normalize tenses (ensure consistency with conjugation dictionary)
     tenses = [t.lower().replace(" ", "_") for t in tenses]
+
+    # ✅ **Filter invalid tenses for "haber" while keeping "tener" intact**
+    if exercise_key == "haber_tener":
+        haber_only_invalid_tenses = ["affirmative_imperative", "negative_imperative", "present_perfect", "past_perfect", "future_perfect"]
+        
+        # ✅ Ensure at least one valid tense is available if haber is chosen
+        filtered_tenses = [t for t in tenses if t not in haber_only_invalid_tenses]
+
+        if not filtered_tenses:
+            return {"error": "No valid tenses available for 'haber'. Please select different tenses or include 'tener'."}
+        
+        tenses = filtered_tenses
+        print(f"📌 Adjusted tenses for haber/tener: {tenses}")
 
     while attempts < max_retries:
         try:
@@ -338,7 +520,7 @@ def generate_conjugation_sentence(exercise_key, tenses):
                 print(f"⚠ Warning: {chosen_tense} not found in conjugations! Defaulting to present.")
                 chosen_tense = "present"
 
-            # ✅ Call OpenAI API with subject pronoun requirement
+            # ✅ Call OpenAI API with strict verb_form requirement
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -351,7 +533,11 @@ def generate_conjugation_sentence(exercise_key, tenses):
                             f"- The verb **must** be in one of these tenses: {', '.join(tenses)}\n"
                             f"- The blank (___) must be filled with the conjugated form of '{correct_answer}' in the chosen tense: {chosen_tense}\n"
                             "- Include the explicit subject pronoun (e.g., Yo, Nosotros, Ellos)\n"
-                            "- Ensure proper subject-verb agreement\n"
+                            "- **Subject pronoun must match the verb. For example: Ellos=habían,él=había.**\n"
+                            "- **The sentence must be logically correct and natural.** Avoid contradictions or confusing statements.\n"
+                            f"- **If the tense is 'affirmative_imperative', ensure the sentence is a logical command that makes sense for the conjugated form of '{correct_answer}'.** \n"
+                            f"- **If the tense is 'negative_imperative', ensure the sentence is a logical command that makes sense for the the conjugated form of '{correct_answer}'.**\n"
+                            "- **You MUST include** the correct verb form as `verb_form`. It cannot be omitted.\n"
                             "- Return JSON with these keys: sentence, correct, tense, verb_form, subject_pronoun\n\n"
                             "**EXAMPLE:**\n"
                             "{\n"
@@ -365,10 +551,10 @@ def generate_conjugation_sentence(exercise_key, tenses):
                         )
                     },
                 ],
-                max_tokens=60,
+                max_tokens=80,
                 temperature=1.1,
             )
-
+           
             # ✅ Extract response content and handle JSON formatting
             response_content = response["choices"][0]["message"]["content"].strip()
             if response_content.startswith("```json"):
@@ -377,12 +563,28 @@ def generate_conjugation_sentence(exercise_key, tenses):
                 response_content = response_content[3:-3].strip()
 
             data = json.loads(response_content.replace("'", "\""))
+            print("📌 Raw AI Response:", response_content)
 
-            # ✅ Ensure AI response includes subject pronoun
+            # ✅ Ensure AI response includes subject pronoun & verb form
             required_fields = ["sentence", "correct", "tense", "verb_form", "subject_pronoun"]
             for field in required_fields:
                 if field not in data:
-                    raise ValueError(f"Missing required field: {field}")
+                    print(f"⚠ Warning: AI response missing `{field}`. Attempting fallback retrieval...")
+
+                    # ✅ Fallback: Retrieve verb_form manually
+                    if field == "verb_form":
+                        subject_map = {
+                            "yo": 0, "tú": 1, "usted": 2, "él": 2, "ella": 2,
+                            "nosotros": 3, "nosotras": 3, "vosotros": 4, "vosotras": 4,
+                            "ustedes": 5, "ellos": 5, "ellas": 5
+                        }
+
+                        subject_pronoun = data.get("subject_pronoun", "").lower()
+                        subject_index = subject_map.get(subject_pronoun)
+
+                        if subject_index is not None and chosen_tense in conjugations[correct_answer]:
+                            data["verb_form"] = conjugations[correct_answer][chosen_tense][subject_index]
+                            print(f"✅ Retrieved missing `verb_form`: {data['verb_form']}")
 
             # ✅ Prevent duplicate sentences
             if data["sentence"] in generated_sentences:
@@ -417,6 +619,8 @@ def generate_conjugation_sentence(exercise_key, tenses):
         "verb_form": "estoy",
         "subject_pronoun": "Yo"
     }
+
+
 
 
 def generate_reason_sentence(exercise_key):

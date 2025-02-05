@@ -16,3 +16,5 @@ EXPOSE 7860
 
 # Command to run the application
 CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]
+
+
